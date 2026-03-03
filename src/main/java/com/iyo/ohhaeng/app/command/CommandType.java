@@ -1,4 +1,19 @@
 package com.iyo.ohhaeng.app.command;
 
-public class CommandType {
+public enum CommandType {
+    // 조회
+    MY_INFO,   // /내정보
+    RANKING,   // /랭킹
+
+    // 자원/성장
+    HUNT,      // /사냥
+    ENHANCE,   // /강화
+    REROLL,    // /리롤
+
+    // 전투
+    DUEL,      // /대결 @상대
+    RAID,      // /레이드
+
+    // 파싱 실패
+    UNKNOWN
 }

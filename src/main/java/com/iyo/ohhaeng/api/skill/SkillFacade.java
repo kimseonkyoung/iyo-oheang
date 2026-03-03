@@ -1,48 +1,48 @@
 package com.iyo.ohhaeng.api.skill;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.iyo.ohhaeng.api.skill.dto.SkillResponse;
+import com.iyo.ohhaeng.app.pipeline.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
+
+import java.util.List;
 
 @Slf4j
 @Component
 public class SkillFacade {
 
-    private static final ObjectMapper objectMapper = new ObjectMapper();
+    private final Pipeline pipeline;
 
-    /**
-     * 스킬 요청 처리 (V0: 고정 응답 반환)
-     * 추후 파이프라인 연결 예정
-     */
+    public SkillFacade(DecodeStage decodeStage, NormalizeStage normalizeStage,
+                       IdempotencyStageNoop idempotencyStageNoop,
+                       ParseStage parseStage,
+                       RateLimitStageNoop rateLimitStageNoop) {
+        this.pipeline = new Pipeline(List.of(
+                decodeStage, normalizeStage, idempotencyStageNoop, parseStage, rateLimitStageNoop
+        ));
+    }
+
     public SkillResponse process(String rawJson, String requestId) {
-        logRequestSummary(rawJson, requestId);
+        SkillContext ctx = new SkillContext(rawJson, requestId);
+        pipeline.run(ctx);
 
-        // V0: 고정 응답
-        String message = "요청을 받았습니다.";
-        return SkillResponse.ofSimpleText(message);
-    }
-
-    private void logRequestSummary(String rawJson, String requestId) {
-        try {
-            JsonNode root = objectMapper.readTree(rawJson);
-
-            String utterance = extractText(root, "/userRequest/utterance");
-            String userId = extractText(root, "/userRequest/user/id");
-            boolean hasCallback = root.has("callbackUrl");
-
-            log.info("[Skill] requestId={}, utterance={}, userId={}, hasCallback={}",
-                    requestId, utterance, userId, hasCallback);
-
-        } catch (Exception e) {
-            log.warn("[Skill] Failed to parse request: requestId={}, error={}",
-                    requestId, e.getMessage());
+        if (ctx.isFailed()) {
+            log.warn("[Skill] pipeline failed: requestId={}, reason={}", requestId, ctx.failReason());
+            return SkillResponse.ofSimpleText("요청을 처리할 수 없습니다. 잠시 후 다시 시도해 주세요.");
         }
-    }
 
-    private String extractText(JsonNode root, String jsonPointer) {
-        JsonNode node = root.at(jsonPointer);
-        return node.isMissingNode() ? null : node.asText();
+        log.info("[Skill] requestId={}, userId={}, command={}, hasCallback={}",
+                requestId, ctx.userId(), ctx.command().type(), ctx.callbackUrl() != null);
+
+        return switch (ctx.command().type()) {
+            case MY_INFO -> SkillResponse.ofSimpleText("[내정보] 준비 중입니다.");
+            case RANKING -> SkillResponse.ofSimpleText("[랭킹] 준비 중입니다.");
+            case HUNT    -> SkillResponse.ofSimpleText("[사냥] 준비 중입니다.");
+            case ENHANCE -> SkillResponse.ofSimpleText("[강화] 준비 중입니다.");
+            case REROLL  -> SkillResponse.ofSimpleText("[리롤] 준비 중입니다.");
+            case DUEL    -> SkillResponse.ofSimpleText("[대결] 준비 중입니다.");
+            case RAID    -> SkillResponse.ofSimpleText("[레이드] 준비 중입니다.");
+            case UNKNOWN -> SkillResponse.ofSimpleText("알 수 없는 명령어예요.");
+        };
     }
 }

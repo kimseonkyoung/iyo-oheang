@@ -1,4 +1,6 @@
 package com.iyo.ohhaeng.app.pipeline;
 
-public class Stage {
+@FunctionalInterface
+public interface Stage {
+    void process(SkillContext ctx);
 }
