@@ -39,6 +39,18 @@ class NormalizeStageTest {
         assertThat(normalize(null)).isEqualTo("");
     }
 
+    @Test
+    @DisplayName("줄바꿈 포함 입력 → 단일 공백으로 수렴")
+    void normalize_newline_collapsedToSpace() {
+        assertThat(normalize("/대결\n@홍길동")).isEqualTo("대결 @홍길동");
+    }
+
+    @Test
+    @DisplayName("탭 포함 입력 → 단일 공백으로 수렴")
+    void normalize_tab_collapsedToSpace() {
+        assertThat(normalize("/대결\t@홍길동")).isEqualTo("대결 @홍길동");
+    }
+
     // ──────────────────────────────────────────────────────────────────
 
     private String normalize(String utterance) {

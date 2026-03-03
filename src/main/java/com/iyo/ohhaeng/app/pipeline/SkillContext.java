@@ -27,6 +27,10 @@ public class SkillContext {
     // ── ParseStage가 채움 ────────────────────────────────────────────
     private Command command;
 
+    // ── Pipeline 중단 신호 ───────────────────────────────────────────
+    private boolean failed = false;
+    private String failReason;
+
     public SkillContext(String rawJson, String requestId) {
         this.rawJson = rawJson;
         this.requestId = requestId;
@@ -56,4 +60,12 @@ public class SkillContext {
     }
 
     public void command(Command command) { this.command = command; }
+
+    public boolean isFailed() { return failed; }
+    public String failReason() { return failReason; }
+
+    public void fail(String reason) {
+        this.failed = true;
+        this.failReason = reason;
+    }
 }

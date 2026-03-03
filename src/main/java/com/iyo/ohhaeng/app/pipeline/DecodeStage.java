@@ -20,12 +20,15 @@ public class DecodeStage implements Stage {
 
             ctx.utterance(text(root, "/userRequest/utterance"));
             ctx.userId(text(root, "/userRequest/user/id"));
-            ctx.callbackUrl(text(root, "/callbackUrl"));
+
+            // callbackUrl: 루트 레벨 우선, 없으면 userRequest 하위 확인
+            String callbackUrl = text(root, "/callbackUrl");
+            if (callbackUrl == null) callbackUrl = text(root, "/userRequest/callbackUrl");
+            ctx.callbackUrl(callbackUrl);
 
         } catch (Exception e) {
-            // JSON 파싱 자체가 실패하면 utterance를 빈 문자열로 설정
-            // → NormalizeStage, ParseStage를 거쳐 UNKNOWN Command로 이어짐
-            ctx.utterance("");
+            // JSON 파싱 실패 → 파이프라인 중단, Facade에서 기본 응답 반환
+            ctx.fail("JSON_PARSE_ERROR");
         }
     }
 

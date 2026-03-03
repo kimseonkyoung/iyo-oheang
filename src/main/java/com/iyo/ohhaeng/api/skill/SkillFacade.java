@@ -13,13 +13,23 @@ public class SkillFacade {
 
     private final Pipeline pipeline;
 
-    public SkillFacade(DecodeStage decodeStage, NormalizeStage normalizeStage, ParseStage parseStage) {
-        this.pipeline = new Pipeline(List.of(decodeStage, normalizeStage, parseStage));
+    public SkillFacade(DecodeStage decodeStage, NormalizeStage normalizeStage,
+                       IdempotencyStageNoop idempotencyStageNoop,
+                       ParseStage parseStage,
+                       RateLimitStageNoop rateLimitStageNoop) {
+        this.pipeline = new Pipeline(List.of(
+                decodeStage, normalizeStage, idempotencyStageNoop, parseStage, rateLimitStageNoop
+        ));
     }
 
     public SkillResponse process(String rawJson, String requestId) {
         SkillContext ctx = new SkillContext(rawJson, requestId);
         pipeline.run(ctx);
+
+        if (ctx.isFailed()) {
+            log.warn("[Skill] pipeline failed: requestId={}, reason={}", requestId, ctx.failReason());
+            return SkillResponse.ofSimpleText("요청을 처리할 수 없습니다. 잠시 후 다시 시도해 주세요.");
+        }
 
         log.info("[Skill] requestId={}, userId={}, command={}, hasCallback={}",
                 requestId, ctx.userId(), ctx.command().type(), ctx.callbackUrl() != null);

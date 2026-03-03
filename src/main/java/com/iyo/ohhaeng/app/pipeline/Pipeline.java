@@ -12,6 +12,7 @@ public class Pipeline {
 
     public SkillContext run(SkillContext ctx) {
         for (Stage stage : stages) {
+            if (ctx.isFailed()) break;
             stage.process(ctx);
         }
         return ctx;

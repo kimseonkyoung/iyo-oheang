@@ -2,9 +2,8 @@ package com.iyo.ohhaeng.api.skill;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.iyo.ohhaeng.app.command.CommandParser;
-import com.iyo.ohhaeng.app.pipeline.DecodeStage;
-import com.iyo.ohhaeng.app.pipeline.NormalizeStage;
-import com.iyo.ohhaeng.app.pipeline.ParseStage;
+import com.iyo.ohhaeng.app.pipeline.*;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -23,8 +22,11 @@ class SkillControllerTest {
     void setUp() {
         DecodeStage decodeStage = new DecodeStage(new ObjectMapper());
         NormalizeStage normalizeStage = new NormalizeStage();
+        IdempotencyStageNoop idempotencyStageNoop = new IdempotencyStageNoop();
         ParseStage parseStage = new ParseStage(new CommandParser());
-        SkillFacade skillFacade = new SkillFacade(decodeStage, normalizeStage, parseStage);
+        RateLimitStageNoop rateLimitStageNoop = new RateLimitStageNoop();
+        SkillFacade skillFacade = new SkillFacade(
+                decodeStage, normalizeStage, idempotencyStageNoop, parseStage, rateLimitStageNoop);
 
         mockMvc = MockMvcBuilders.standaloneSetup(new SkillController(skillFacade)).build();
     }
@@ -68,6 +70,18 @@ class SkillControllerTest {
     }
 
     @Test
+    @DisplayName("POST /skill - 깨진 JSON → 500 금지, 기본 응답 반환")
+    void handleSkill_brokenJson_returns200WithFallback() throws Exception {
+        mockMvc.perform(post("/skill")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{ broken json !!!"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.version").value("2.0"))
+                .andExpect(jsonPath("$.template.outputs[0].simpleText.payload.text")
+                        .value("요청을 처리할 수 없습니다. 잠시 후 다시 시도해 주세요."));
+    }
+
+    @Test
     @DisplayName("POST /skill - 알 수 없는 명령어도 200 응답")
     void handleSkill_unknownCommand_returns200() throws Exception {
         String body = """
@@ -80,5 +94,26 @@ class SkillControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.template.outputs[0].simpleText.payload.text")
                         .value("알 수 없는 명령어예요."));
+    }
+
+    @Test
+    @DisplayName("POST /skill - /대결 @상대 → 파이프라인 전체 통과, 200 응답")
+    void handleSkill_duelCommand_pipelinePassthrough() throws Exception {
+        String body = """
+                {
+                    "userRequest": {
+                        "utterance": "/대결 @홍길동",
+                        "user": {"id": "user-004"}
+                    }
+                }
+                """;
+
+        mockMvc.perform(post("/skill")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(body))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.version").value("2.0"))
+                .andExpect(jsonPath("$.template.outputs[0].simpleText.payload.text")
+                        .value("[대결] 준비 중입니다."));
     }
 }
