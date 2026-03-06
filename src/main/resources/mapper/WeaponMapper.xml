@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.iyo.ohhaeng.infra.db.mapper.WeaponMapper">
+
+    <resultMap id="weaponResultMap" type="com.iyo.ohhaeng.domain.weapon.Weapon">
+        <constructor>
+            <idArg column="WEAPON_ID"     javaType="String"/>
+            <arg   column="OWNER_ID"      javaType="String"/>
+            <arg   column="ELEMENT_TYPE"  javaType="com.iyo.ohhaeng.domain.weapon.ElementType"/>
+            <arg   column="ENHANCE_LEVEL" javaType="int"/>
+        </constructor>
+    </resultMap>
+
+    <select id="findByUserId" parameterType="String" resultMap="weaponResultMap">
+        SELECT WEAPON_ID, OWNER_ID, ELEMENT_TYPE, ENHANCE_LEVEL
+        FROM O_WEAPONS
+        WHERE OWNER_ID = #{userId}
+    </select>
+
+</mapper>
