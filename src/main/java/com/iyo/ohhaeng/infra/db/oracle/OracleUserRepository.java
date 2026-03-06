@@ -23,4 +23,9 @@ public class OracleUserRepository implements UserRepository {
     public User findByIdForUpdate(String userId) {
         return LockingSupport.execute(() -> userMapper.findByIdForUpdate(userId));
     }
+
+    @Override
+    public void update(User user) {
+        userMapper.update(user);
+    }
 }

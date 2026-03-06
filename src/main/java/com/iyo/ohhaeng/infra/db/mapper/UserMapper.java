@@ -12,4 +12,6 @@ public interface UserMapper {
     Optional<User> findById(@Param("userId") String userId);
 
     User findByIdForUpdate(@Param("userId") String userId);
+
+    void update(User user);
 }

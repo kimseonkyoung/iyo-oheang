@@ -11,15 +11,20 @@ public class User {
     private int maxHp;
     private int stamina;
     private int maxStamina;
+    private long experience;
+    private long gold;
     private Instant lastCalcAt;
     private Instant downUntil;
 
-    public User(String userId, int hp, int maxHp, int stamina, int maxStamina, Instant lastCalcAt, Instant downUntil) {
+    public User(String userId, int hp, int maxHp, int stamina, int maxStamina,
+                long experience, long gold, Instant lastCalcAt, Instant downUntil) {
         this.userId = userId;
         this.hp = hp;
         this.maxHp = maxHp;
         this.stamina = stamina;
         this.maxStamina = maxStamina;
+        this.experience = experience;
+        this.gold = gold;
         this.lastCalcAt = lastCalcAt;
         this.downUntil = downUntil;
     }
