@@ -3,6 +3,7 @@ package com.iyo.ohhaeng.api.skill;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.iyo.ohhaeng.app.command.CommandParser;
 import com.iyo.ohhaeng.app.pipeline.*;
+import com.iyo.ohhaeng.app.usecase.GetMyInfoUseCase;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -11,6 +12,8 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -25,8 +28,13 @@ class SkillControllerTest {
         IdempotencyStageNoop idempotencyStageNoop = new IdempotencyStageNoop();
         ParseStage parseStage = new ParseStage(new CommandParser());
         RateLimitStageNoop rateLimitStageNoop = new RateLimitStageNoop();
+
+        GetMyInfoUseCase getMyInfoUseCase = mock(GetMyInfoUseCase.class);
+        when(getMyInfoUseCase.execute(anyString())).thenReturn("[내 정보]\n속성: WOOD  강화: +0\nHP: 100/100  스태미나: 50/50");
+
         SkillFacade skillFacade = new SkillFacade(
-                decodeStage, normalizeStage, idempotencyStageNoop, parseStage, rateLimitStageNoop);
+                decodeStage, normalizeStage, idempotencyStageNoop, parseStage, rateLimitStageNoop,
+                getMyInfoUseCase);
 
         mockMvc = MockMvcBuilders.standaloneSetup(new SkillController(skillFacade)).build();
     }
