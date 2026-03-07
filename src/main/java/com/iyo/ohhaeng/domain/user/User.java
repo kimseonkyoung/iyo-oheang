@@ -4,6 +4,8 @@ import lombok.Getter;
 import java.time.Duration;
 import java.time.Instant;
 
+import static java.lang.Math.max;
+
 @Getter
 public class User {
     private String userId;
@@ -36,4 +38,29 @@ public class User {
         lastCalcAt = lastCalcAt.plusSeconds(ticks * 10);
     }
 
+    public void knockDown(Instant now) {
+        this.downUntil = now.plusSeconds(60 * 10);  // 10분 = 600초
+
+    }
+
+    public void consumeStamina() {
+        this.stamina -= 1;
+    }
+
+    public void applyHuntResult(int damage) {
+        this.hp = max(0, hp - damage);
+        this.experience += 10;
+        this.gold += 200;
+    }
+
+    public boolean isDown(Instant now) {
+        if (downUntil == null) {
+            return false;
+        }
+        if (now.isBefore(downUntil)) {
+            return true;
+        }
+        downUntil = null;
+        return false;
+    }
 }
