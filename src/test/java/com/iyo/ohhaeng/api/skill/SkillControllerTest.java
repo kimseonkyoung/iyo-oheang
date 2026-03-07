@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.iyo.ohhaeng.app.command.CommandParser;
 import com.iyo.ohhaeng.app.pipeline.*;
 import com.iyo.ohhaeng.app.usecase.GetMyInfoUseCase;
+import com.iyo.ohhaeng.app.usecase.HuntUseCase;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -32,9 +33,12 @@ class SkillControllerTest {
         GetMyInfoUseCase getMyInfoUseCase = mock(GetMyInfoUseCase.class);
         when(getMyInfoUseCase.execute(anyString())).thenReturn("[내 정보]\n속성: WOOD  강화: +0\nHP: 100/100  스태미나: 50/50");
 
+        HuntUseCase huntUseCase = mock(HuntUseCase.class);
+        when(huntUseCase.execute(anyString())).thenReturn("[사냥 결과]\n피해: 25  HP: 75/100\n경험치 +10  골드 +200");
+
         SkillFacade skillFacade = new SkillFacade(
                 decodeStage, normalizeStage, idempotencyStageNoop, parseStage, rateLimitStageNoop,
-                getMyInfoUseCase);
+                getMyInfoUseCase, huntUseCase);
 
         mockMvc = MockMvcBuilders.standaloneSetup(new SkillController(skillFacade)).build();
     }

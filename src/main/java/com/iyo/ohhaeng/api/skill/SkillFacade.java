@@ -3,6 +3,7 @@ package com.iyo.ohhaeng.api.skill;
 import com.iyo.ohhaeng.api.skill.dto.SkillResponse;
 import com.iyo.ohhaeng.app.pipeline.*;
 import com.iyo.ohhaeng.app.usecase.GetMyInfoUseCase;
+import com.iyo.ohhaeng.app.usecase.HuntUseCase;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
@@ -14,16 +15,19 @@ public class SkillFacade {
 
     private final Pipeline pipeline;
     private final GetMyInfoUseCase getMyInfoUseCase;
+    private final HuntUseCase huntUseCase;
 
     public SkillFacade(DecodeStage decodeStage, NormalizeStage normalizeStage,
                        IdempotencyStageNoop idempotencyStageNoop,
                        ParseStage parseStage,
                        RateLimitStageNoop rateLimitStageNoop,
-                       GetMyInfoUseCase getMyInfoUseCase) {
+                       GetMyInfoUseCase getMyInfoUseCase,
+                       HuntUseCase huntUseCase) {
         this.pipeline = new Pipeline(List.of(
                 decodeStage, normalizeStage, idempotencyStageNoop, parseStage, rateLimitStageNoop
         ));
         this.getMyInfoUseCase = getMyInfoUseCase;
+        this.huntUseCase = huntUseCase;
     }
 
     public SkillResponse process(String rawJson, String requestId) {
@@ -41,7 +45,7 @@ public class SkillFacade {
         return switch (ctx.command().type()) {
             case MY_INFO -> SkillResponse.ofSimpleText(getMyInfoUseCase.execute(ctx.userId()));
             case RANKING -> SkillResponse.ofSimpleText("[랭킹] 준비 중입니다.");
-            case HUNT    -> SkillResponse.ofSimpleText("[사냥] 준비 중입니다.");
+            case HUNT    -> SkillResponse.ofSimpleText(huntUseCase.execute(ctx.userId()));
             case ENHANCE -> SkillResponse.ofSimpleText("[강화] 준비 중입니다.");
             case REROLL  -> SkillResponse.ofSimpleText("[리롤] 준비 중입니다.");
             case DUEL    -> SkillResponse.ofSimpleText("[대결] 준비 중입니다.");
