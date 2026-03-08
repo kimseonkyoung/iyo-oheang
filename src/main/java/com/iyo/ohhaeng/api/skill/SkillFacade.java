@@ -5,6 +5,7 @@ import com.iyo.ohhaeng.app.pipeline.*;
 import com.iyo.ohhaeng.app.usecase.EnhanceUseCase;
 import com.iyo.ohhaeng.app.usecase.GetMyInfoUseCase;
 import com.iyo.ohhaeng.app.usecase.HuntUseCase;
+import com.iyo.ohhaeng.app.usecase.RerollUseCase;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
@@ -18,6 +19,7 @@ public class SkillFacade {
     private final GetMyInfoUseCase getMyInfoUseCase;
     private final HuntUseCase huntUseCase;
     private final EnhanceUseCase enhanceUseCase;
+    private final RerollUseCase rerollUseCase;
 
     public SkillFacade(DecodeStage decodeStage, NormalizeStage normalizeStage,
                        IdempotencyStageNoop idempotencyStageNoop,
@@ -25,13 +27,15 @@ public class SkillFacade {
                        RateLimitStageNoop rateLimitStageNoop,
                        GetMyInfoUseCase getMyInfoUseCase,
                        HuntUseCase huntUseCase,
-                       EnhanceUseCase enhanceUseCase) {
+                       EnhanceUseCase enhanceUseCase,
+                       RerollUseCase rerollUseCase) {
         this.pipeline = new Pipeline(List.of(
                 decodeStage, normalizeStage, idempotencyStageNoop, parseStage, rateLimitStageNoop
         ));
         this.getMyInfoUseCase = getMyInfoUseCase;
         this.huntUseCase = huntUseCase;
         this.enhanceUseCase = enhanceUseCase;
+        this.rerollUseCase = rerollUseCase;
     }
 
     public SkillResponse process(String rawJson, String requestId) {
@@ -51,7 +55,7 @@ public class SkillFacade {
             case RANKING -> SkillResponse.ofSimpleText("[랭킹] 준비 중입니다.");
             case HUNT    -> SkillResponse.ofSimpleText(huntUseCase.execute(ctx.userId()));
             case ENHANCE -> SkillResponse.ofSimpleText(enhanceUseCase.execute(ctx.userId()));
-            case REROLL  -> SkillResponse.ofSimpleText("[리롤] 준비 중입니다.");
+            case REROLL  -> SkillResponse.ofSimpleText(rerollUseCase.execute(ctx.userId()));
             case DUEL    -> SkillResponse.ofSimpleText("[대결] 준비 중입니다.");
             case RAID    -> SkillResponse.ofSimpleText("[레이드] 준비 중입니다.");
             case UNKNOWN -> SkillResponse.ofSimpleText("알 수 없는 명령어예요.");

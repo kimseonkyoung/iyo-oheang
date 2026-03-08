@@ -1,8 +1,10 @@
 package com.iyo.ohhaeng.domain.user;
 
+import com.iyo.ohhaeng.domain.weapon.ElementType;
 import lombok.Getter;
 import java.time.Duration;
 import java.time.Instant;
+import java.time.ZoneOffset;
 
 import static java.lang.Math.max;
 
@@ -15,11 +17,13 @@ public class User {
     private int maxStamina;
     private long experience;
     private long gold;
+    private Instant lastRerollAt;
+    private int dailyRerollCount;
     private Instant lastCalcAt;
     private Instant downUntil;
 
     public User(String userId, int hp, int maxHp, int stamina, int maxStamina,
-                long experience, long gold, Instant lastCalcAt, Instant downUntil) {
+                long experience, long gold, Instant lastCalcAt, Instant downUntil, Instant lastRerollAt, int dailyRerollCount) {
         this.userId = userId;
         this.hp = hp;
         this.maxHp = maxHp;
@@ -29,6 +33,8 @@ public class User {
         this.gold = gold;
         this.lastCalcAt = lastCalcAt;
         this.downUntil = downUntil;
+        this.lastRerollAt = lastRerollAt;
+        this.dailyRerollCount = dailyRerollCount;
     }
 
     public void recalcResources(Instant now) {
@@ -40,7 +46,6 @@ public class User {
 
     public void knockDown(Instant now) {
         this.downUntil = now.plusSeconds(60 * 10);  // 10분 = 600초
-
     }
 
     public void consumeStamina() {
@@ -70,5 +75,34 @@ public class User {
 
     public boolean hasGold(int enhanceCost) {
         return this.gold >= enhanceCost;
+    }
+
+    public boolean isRerollOnCooldown(Instant now) {
+        if (lastRerollAt == null) return false;
+        return Duration.between(lastRerollAt, now).toMinutes() < 10;
+    }
+
+    public boolean isRerollLimitReached(Instant now) {
+        if (lastRerollAt == null) return false;
+        boolean sameDay = lastRerollAt.atZone(ZoneOffset.UTC).toLocalDate()
+                .equals(now.atZone(ZoneOffset.UTC).toLocalDate());
+        return sameDay && dailyRerollCount >= 3;
+    }
+
+    public int rerollCost() {
+        return switch (dailyRerollCount) {
+            case 0 -> 100;
+            case 1 -> 200;
+            default -> 400;
+        };
+    }
+
+    public void applyReroll(Instant now) {
+        boolean sameDay = lastRerollAt != null &&
+                lastRerollAt.atZone(ZoneOffset.UTC).toLocalDate()
+                        .equals(now.atZone(ZoneOffset.UTC).toLocalDate());
+        if (!sameDay) dailyRerollCount = 0;
+        dailyRerollCount++;
+        lastRerollAt = now;
     }
 }

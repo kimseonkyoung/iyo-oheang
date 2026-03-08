@@ -34,4 +34,8 @@ public class Weapon {
     public boolean isMaxLevel() {
         return enhanceLevel >= 30;
     }
+
+    public void changeElement(ElementType newElement) {
+        this.elementType = newElement;
+    }
 }
