@@ -19,4 +19,11 @@
         WHERE OWNER_ID = #{userId}
     </select>
 
+    <update id="update" parameterType="com.iyo.ohhaeng.domain.weapon.Weapon">
+        UPDATE O_WEAPONS
+        SET ENHANCE_LEVEL   = #{enhanceLevel},
+            ELEMENT_TYPE    = #{elementType}
+        WHERE WEAPON_ID     = #{weaponId}
+    </update>
+
 </mapper>

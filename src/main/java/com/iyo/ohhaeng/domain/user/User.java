@@ -63,4 +63,12 @@ public class User {
         downUntil = null;
         return false;
     }
+
+    public void spendGold(int enhanceCost) {
+        this.gold -= enhanceCost;
+    }
+
+    public boolean hasGold(int enhanceCost) {
+        return this.gold >= enhanceCost;
+    }
 }

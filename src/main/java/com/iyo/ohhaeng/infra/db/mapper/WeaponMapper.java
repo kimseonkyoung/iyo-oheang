@@ -8,4 +8,6 @@ import org.apache.ibatis.annotations.Param;
 public interface WeaponMapper {
 
     Weapon findByUserId(@Param("userId") String userId);
+
+    void update(Weapon weapon);
 }

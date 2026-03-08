@@ -16,4 +16,9 @@ public class OracleWeaponRepository implements WeaponRepository {
     public Weapon findByUserId(String userId) {
         return weaponMapper.findByUserId(userId);
     }
+
+    @Override
+    public void update(Weapon weapon) {
+        weaponMapper.update(weapon);
+    }
 }

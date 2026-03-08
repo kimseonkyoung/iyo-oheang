@@ -2,6 +2,7 @@ package com.iyo.ohhaeng.api.skill;
 
 import com.iyo.ohhaeng.api.skill.dto.SkillResponse;
 import com.iyo.ohhaeng.app.pipeline.*;
+import com.iyo.ohhaeng.app.usecase.EnhanceUseCase;
 import com.iyo.ohhaeng.app.usecase.GetMyInfoUseCase;
 import com.iyo.ohhaeng.app.usecase.HuntUseCase;
 import lombok.extern.slf4j.Slf4j;
@@ -16,18 +17,21 @@ public class SkillFacade {
     private final Pipeline pipeline;
     private final GetMyInfoUseCase getMyInfoUseCase;
     private final HuntUseCase huntUseCase;
+    private final EnhanceUseCase enhanceUseCase;
 
     public SkillFacade(DecodeStage decodeStage, NormalizeStage normalizeStage,
                        IdempotencyStageNoop idempotencyStageNoop,
                        ParseStage parseStage,
                        RateLimitStageNoop rateLimitStageNoop,
                        GetMyInfoUseCase getMyInfoUseCase,
-                       HuntUseCase huntUseCase) {
+                       HuntUseCase huntUseCase,
+                       EnhanceUseCase enhanceUseCase) {
         this.pipeline = new Pipeline(List.of(
                 decodeStage, normalizeStage, idempotencyStageNoop, parseStage, rateLimitStageNoop
         ));
         this.getMyInfoUseCase = getMyInfoUseCase;
         this.huntUseCase = huntUseCase;
+        this.enhanceUseCase = enhanceUseCase;
     }
 
     public SkillResponse process(String rawJson, String requestId) {
@@ -46,7 +50,7 @@ public class SkillFacade {
             case MY_INFO -> SkillResponse.ofSimpleText(getMyInfoUseCase.execute(ctx.userId()));
             case RANKING -> SkillResponse.ofSimpleText("[랭킹] 준비 중입니다.");
             case HUNT    -> SkillResponse.ofSimpleText(huntUseCase.execute(ctx.userId()));
-            case ENHANCE -> SkillResponse.ofSimpleText("[강화] 준비 중입니다.");
+            case ENHANCE -> SkillResponse.ofSimpleText(enhanceUseCase.execute(ctx.userId()));
             case REROLL  -> SkillResponse.ofSimpleText("[리롤] 준비 중입니다.");
             case DUEL    -> SkillResponse.ofSimpleText("[대결] 준비 중입니다.");
             case RAID    -> SkillResponse.ofSimpleText("[레이드] 준비 중입니다.");
