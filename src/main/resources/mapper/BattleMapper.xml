@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.iyo.ohhaeng.infra.db.mapper.BattleMapper">
+
+    <insert id="save" parameterType="com.iyo.ohhaeng.domain.battle.Battle"
+            useGeneratedKeys="true" keyProperty="battleId" keyColumn="BATTLE_ID">
+        INSERT INTO O_BATTLES (ROOM_ID, A_USER_ID, B_USER_ID, A_SUM, B_SUM, OUTCOME, ROUND_LOG_JSON, CREATED_AT)
+        VALUES (#{roomId}, #{aUserId}, #{bUserId}, #{aSum}, #{bSum}, #{outcome},
+                #{roundLogJson,jdbcType=CLOB}, SYSTIMESTAMP)
+    </insert>
+
+</mapper>

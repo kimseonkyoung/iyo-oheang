@@ -22,4 +22,20 @@ public class Weapon {
     public void rerollPenalty() {
         enhanceLevel = Math.max(MIN_ENHANCE_LEVEL, enhanceLevel - 2);
     }
+
+    public void enhance() {
+        this.enhanceLevel++;
+    }
+
+    public void degrade() {
+        this.enhanceLevel--;
+    }
+
+    public boolean isMaxLevel() {
+        return enhanceLevel >= 30;
+    }
+
+    public void changeElement(ElementType newElement) {
+        this.elementType = newElement;
+    }
 }

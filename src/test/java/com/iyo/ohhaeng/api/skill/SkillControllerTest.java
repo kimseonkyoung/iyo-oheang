@@ -3,6 +3,11 @@ package com.iyo.ohhaeng.api.skill;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.iyo.ohhaeng.app.command.CommandParser;
 import com.iyo.ohhaeng.app.pipeline.*;
+import com.iyo.ohhaeng.app.usecase.DuelUseCase;
+import com.iyo.ohhaeng.app.usecase.EnhanceUseCase;
+import com.iyo.ohhaeng.app.usecase.GetMyInfoUseCase;
+import com.iyo.ohhaeng.app.usecase.HuntUseCase;
+import com.iyo.ohhaeng.app.usecase.RerollUseCase;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -11,6 +16,8 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -25,8 +32,25 @@ class SkillControllerTest {
         IdempotencyStageNoop idempotencyStageNoop = new IdempotencyStageNoop();
         ParseStage parseStage = new ParseStage(new CommandParser());
         RateLimitStageNoop rateLimitStageNoop = new RateLimitStageNoop();
+
+        GetMyInfoUseCase getMyInfoUseCase = mock(GetMyInfoUseCase.class);
+        when(getMyInfoUseCase.execute(anyString())).thenReturn("[내 정보]\n속성: WOOD  강화: +0\nHP: 100/100  스태미나: 50/50");
+
+        HuntUseCase huntUseCase = mock(HuntUseCase.class);
+        when(huntUseCase.execute(anyString())).thenReturn("[사냥 결과]\n피해: 25  HP: 75/100\n경험치 +10  골드 +200");
+
+        EnhanceUseCase enhanceUseCase = mock(EnhanceUseCase.class);
+        when(enhanceUseCase.execute(anyString())).thenReturn("[강화 결과]\n강화 성공! +1\n골드 -500");
+
+        RerollUseCase rerollUseCase = mock(RerollUseCase.class);
+        when(rerollUseCase.execute(anyString())).thenReturn("[리롤 결과]\n속성: FIRE\n골드 -100");
+
+        DuelUseCase duelUseCase = mock(DuelUseCase.class);
+        when(duelUseCase.execute(anyString(), anyString())).thenReturn("[대결 결과]\nvs @홍길동\n승리! (120 vs 95)");
+
         SkillFacade skillFacade = new SkillFacade(
-                decodeStage, normalizeStage, idempotencyStageNoop, parseStage, rateLimitStageNoop);
+                decodeStage, normalizeStage, idempotencyStageNoop, parseStage, rateLimitStageNoop,
+                getMyInfoUseCase, huntUseCase, enhanceUseCase, rerollUseCase, duelUseCase);
 
         mockMvc = MockMvcBuilders.standaloneSetup(new SkillController(skillFacade)).build();
     }
@@ -97,8 +121,8 @@ class SkillControllerTest {
     }
 
     @Test
-    @DisplayName("POST /skill - /대결 @상대 → 파이프라인 전체 통과, 200 응답")
-    void handleSkill_duelCommand_pipelinePassthrough() throws Exception {
+    @DisplayName("POST /skill - /대결 @상대 → DuelUseCase 위임 후 200 응답")
+    void handleSkill_duelCommand_delegatesToDuelUseCase() throws Exception {
         String body = """
                 {
                     "userRequest": {
@@ -114,6 +138,6 @@ class SkillControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.version").value("2.0"))
                 .andExpect(jsonPath("$.template.outputs[0].simpleText.payload.text")
-                        .value("[대결] 준비 중입니다."));
+                        .value("[대결 결과]\nvs @홍길동\n승리! (120 vs 95)"));
     }
 }

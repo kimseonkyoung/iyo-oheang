@@ -1,0 +1,33 @@
+server:
+  port: 8080
+
+spring:
+  threads:
+    virtual:
+      enabled: true
+
+  datasource:
+    url: jdbc:oracle:thin:@//localhost:1521/FREEPDB1
+    username: OHAENG
+    password: ohaeng_pw
+    driver-class-name: oracle.jdbc.OracleDriver
+
+    hikari:
+      maximum-pool-size: 10
+      minimum-idle: 10
+      connection-timeout: 1000
+      validation-timeout: 1000
+      max-lifetime: 1800000
+      idle-timeout: 600000
+
+mybatis:
+  type-handlers-package: com.iyo.ohhaeng.infra.db.typehandler
+  mapper-locations: classpath:mapper/*.xml
+  configuration:
+    map-underscore-to-camel-case: true
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
