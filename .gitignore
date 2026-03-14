@@ -43,7 +43,7 @@ docs_private/
 wiki/
 
 ### Study Notes (private) ###
-docs/STUDY_*.md
+docs/study/
 
 ### Claude Code ###
 .claude/

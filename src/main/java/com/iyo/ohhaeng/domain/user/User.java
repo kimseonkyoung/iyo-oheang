@@ -69,6 +69,11 @@ public class User {
         return false;
     }
 
+    public void applyDuelLoss(Instant now) {
+        this.hp = Math.max(0, hp - 10);
+        if (this.hp == 0) knockDown(now);
+    }
+
     public void spendGold(int enhanceCost) {
         this.gold -= enhanceCost;
     }

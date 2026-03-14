@@ -13,5 +13,7 @@ public interface UserMapper {
 
     User findByIdForUpdate(@Param("userId") String userId);
 
+    User findByNameForUpdate(@Param("name") String name);
+
     void update(User user);
 }

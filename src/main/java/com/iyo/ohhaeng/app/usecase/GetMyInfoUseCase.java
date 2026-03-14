@@ -7,6 +7,7 @@ import com.iyo.ohhaeng.infra.db.WeaponRepository;
 import com.iyo.ohhaeng.infra.time.ClockHolder;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 @RequiredArgsConstructor
 @Component
@@ -16,6 +17,7 @@ public class GetMyInfoUseCase {
     private final WeaponRepository weaponRepository;
     private final ClockHolder clockHolder;
 
+    @Transactional(readOnly = true)
     public String execute(String userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("유저를 찾을 수 없습니다."));
@@ -26,6 +28,4 @@ public class GetMyInfoUseCase {
                 + "\nHP: " + user.getHp() + "/" + user.getMaxHp()
                 + "  스태미나: " + user.getStamina() + "/" + user.getMaxStamina();
     }
-
-
 }

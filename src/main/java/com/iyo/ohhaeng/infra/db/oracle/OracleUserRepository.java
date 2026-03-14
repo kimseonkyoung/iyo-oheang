@@ -25,6 +25,11 @@ public class OracleUserRepository implements UserRepository {
     }
 
     @Override
+    public User findByNameForUpdate(String name) {
+        return LockingSupport.execute(() -> userMapper.findByNameForUpdate(name));
+    }
+
+    @Override
     public void update(User user) {
         userMapper.update(user);
     }

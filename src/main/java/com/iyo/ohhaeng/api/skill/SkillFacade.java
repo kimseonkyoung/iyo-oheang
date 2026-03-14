@@ -2,6 +2,7 @@ package com.iyo.ohhaeng.api.skill;
 
 import com.iyo.ohhaeng.api.skill.dto.SkillResponse;
 import com.iyo.ohhaeng.app.pipeline.*;
+import com.iyo.ohhaeng.app.usecase.DuelUseCase;
 import com.iyo.ohhaeng.app.usecase.EnhanceUseCase;
 import com.iyo.ohhaeng.app.usecase.GetMyInfoUseCase;
 import com.iyo.ohhaeng.app.usecase.HuntUseCase;
@@ -20,6 +21,7 @@ public class SkillFacade {
     private final HuntUseCase huntUseCase;
     private final EnhanceUseCase enhanceUseCase;
     private final RerollUseCase rerollUseCase;
+    private final DuelUseCase duelUseCase;
 
     public SkillFacade(DecodeStage decodeStage, NormalizeStage normalizeStage,
                        IdempotencyStageNoop idempotencyStageNoop,
@@ -28,7 +30,8 @@ public class SkillFacade {
                        GetMyInfoUseCase getMyInfoUseCase,
                        HuntUseCase huntUseCase,
                        EnhanceUseCase enhanceUseCase,
-                       RerollUseCase rerollUseCase) {
+                       RerollUseCase rerollUseCase,
+                       DuelUseCase duelUseCase) {
         this.pipeline = new Pipeline(List.of(
                 decodeStage, normalizeStage, idempotencyStageNoop, parseStage, rateLimitStageNoop
         ));
@@ -36,6 +39,7 @@ public class SkillFacade {
         this.huntUseCase = huntUseCase;
         this.enhanceUseCase = enhanceUseCase;
         this.rerollUseCase = rerollUseCase;
+        this.duelUseCase = duelUseCase;
     }
 
     public SkillResponse process(String rawJson, String requestId) {
@@ -56,7 +60,8 @@ public class SkillFacade {
             case HUNT    -> SkillResponse.ofSimpleText(huntUseCase.execute(ctx.userId()));
             case ENHANCE -> SkillResponse.ofSimpleText(enhanceUseCase.execute(ctx.userId()));
             case REROLL  -> SkillResponse.ofSimpleText(rerollUseCase.execute(ctx.userId()));
-            case DUEL    -> SkillResponse.ofSimpleText("[대결] 준비 중입니다.");
+            case DUEL    -> SkillResponse.ofSimpleText(
+                    duelUseCase.execute(ctx.userId(), ctx.command().args().get("target")));
             case RAID    -> SkillResponse.ofSimpleText("[레이드] 준비 중입니다.");
             case UNKNOWN -> SkillResponse.ofSimpleText("알 수 없는 명령어예요.");
         };
