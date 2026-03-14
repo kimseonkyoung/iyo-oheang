@@ -6,8 +6,8 @@ Kakao Skill
 → POST /skill
 → Controller
 → Facade
-→ Decode → Normalize → [Hook: IdempotencyGuard]
-→ Parse → [Hook: RateLimit]
+→ Decode → Normalize → Parse
+→ [Hook: IdempotencyGuard] → [Hook: RateLimit]
 → (V1) UseCase → (optional) DB
 → SkillResponse
 (V1+) After Commit → [Hook: Async Post-Commit]

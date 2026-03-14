@@ -30,12 +30,11 @@
         WHERE USER_ID = #{userId}
     </select>
 
-    <select id="findByNameForUpdate" parameterType="String" resultMap="userResultMap">
+    <select id="findByName" parameterType="String" resultMap="userResultMap">
         SELECT USER_ID, CUR_HP, MAX_HP, CUR_STAMINA, MAX_STAMINA, EXPERIENCE, GOLD,
                LAST_CALC_AT, DOWN_UNTIL, LAST_REROLL_AT, DAILY_REROLL_CNT
         FROM O_USERS
         WHERE USER_NAME = #{name}
-        FOR UPDATE NOWAIT
     </select>
 
     <select id="findByIdForUpdate" parameterType="String" resultMap="userResultMap">
