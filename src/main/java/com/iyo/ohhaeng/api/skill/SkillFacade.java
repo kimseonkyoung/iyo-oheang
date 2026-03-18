@@ -1,7 +1,13 @@
 package com.iyo.ohhaeng.api.skill;
 
 import com.iyo.ohhaeng.api.skill.dto.SkillResponse;
-import com.iyo.ohhaeng.app.pipeline.*;
+import com.iyo.ohhaeng.app.pipeline.DecodeStage;
+import com.iyo.ohhaeng.app.pipeline.IdempotencyStage;
+import com.iyo.ohhaeng.app.pipeline.NormalizeStage;
+import com.iyo.ohhaeng.app.pipeline.ParseStage;
+import com.iyo.ohhaeng.app.pipeline.Pipeline;
+import com.iyo.ohhaeng.app.pipeline.RateLimitStageNoop;
+import com.iyo.ohhaeng.app.pipeline.SkillContext;
 import com.iyo.ohhaeng.app.usecase.DuelUseCase;
 import com.iyo.ohhaeng.app.usecase.EnhanceUseCase;
 import com.iyo.ohhaeng.app.usecase.GetMyInfoUseCase;
@@ -24,8 +30,8 @@ public class SkillFacade {
     private final DuelUseCase duelUseCase;
 
     public SkillFacade(DecodeStage decodeStage, NormalizeStage normalizeStage,
-                       IdempotencyStageNoop idempotencyStageNoop,
                        ParseStage parseStage,
+                       IdempotencyStage idempotencyStage,
                        RateLimitStageNoop rateLimitStageNoop,
                        GetMyInfoUseCase getMyInfoUseCase,
                        HuntUseCase huntUseCase,
@@ -33,7 +39,7 @@ public class SkillFacade {
                        RerollUseCase rerollUseCase,
                        DuelUseCase duelUseCase) {
         this.pipeline = new Pipeline(List.of(
-                decodeStage, normalizeStage, idempotencyStageNoop, parseStage, rateLimitStageNoop
+                decodeStage, normalizeStage, parseStage, idempotencyStage, rateLimitStageNoop
         ));
         this.getMyInfoUseCase = getMyInfoUseCase;
         this.huntUseCase = huntUseCase;
@@ -48,6 +54,9 @@ public class SkillFacade {
 
         if (ctx.isFailed()) {
             log.warn("[Skill] pipeline failed: requestId={}, reason={}", requestId, ctx.failReason());
+            if ("IDEM_HIT".equals(ctx.failReason())) {
+                return SkillResponse.ofSimpleText("이미 처리된 요청입니다.");
+            }
             return SkillResponse.ofSimpleText("요청을 처리할 수 없습니다. 잠시 후 다시 시도해 주세요.");
         }
 
