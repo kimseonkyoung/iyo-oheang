@@ -20,13 +20,13 @@ public class OracleUserRepository implements UserRepository {
     }
 
     @Override
-    public User findByIdForUpdate(String userId) {
-        return LockingSupport.execute(() -> userMapper.findByIdForUpdate(userId));
+    public Optional<User> findByName(String name) {
+        return userMapper.findByName(name);
     }
 
     @Override
-    public User findByNameForUpdate(String name) {
-        return LockingSupport.execute(() -> userMapper.findByNameForUpdate(name));
+    public User findByIdForUpdate(String userId) {
+        return LockingSupport.execute(() -> userMapper.findByIdForUpdate(userId));
     }
 
     @Override

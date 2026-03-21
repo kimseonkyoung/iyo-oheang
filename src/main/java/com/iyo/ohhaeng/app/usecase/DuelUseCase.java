@@ -33,9 +33,18 @@ public class DuelUseCase {
     public String execute(String userId, String targetName) {
         Instant now = clockHolder.now();
 
-        // V0: 요청자 먼저 락, 상대 나중 락 (단일 봇 환경 — 양방향 동시 대결 가능성 낮음)
-        User attacker = userRepository.findByIdForUpdate(userId);
-        User target   = userRepository.findByNameForUpdate(targetName);
+        // 1. 락 없이 상대 userId 조회
+        String targetId = userRepository.findByName(targetName)
+                .orElseThrow(() -> new IllegalArgumentException("상대를 찾을 수 없습니다: " + targetName))
+                .getUserId();
+
+        // 2. 데드락 방지: userId 사전순으로 락 순서 고정 후 읽기
+        boolean attackerFirst = userId.compareTo(targetId) < 0;
+        User first  = userRepository.findByIdForUpdate(attackerFirst ? userId   : targetId);
+        User second = userRepository.findByIdForUpdate(attackerFirst ? targetId : userId);
+
+        User attacker = attackerFirst ? first : second;
+        User target   = attackerFirst ? second : first;
 
         if (attacker.isDown(now)) return "기절 중입니다. 잠시 후 다시 시도해 주세요.";
         if (target.isDown(now))   return "상대가 기절 중입니다.";
