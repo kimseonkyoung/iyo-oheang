@@ -2,9 +2,11 @@ package com.iyo.ohhaeng.api.skill;
 
 import com.iyo.ohhaeng.api.skill.dto.SkillResponse;
 import com.iyo.ohhaeng.app.exception.ResourceLockedException;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
+@Slf4j
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
@@ -14,6 +16,17 @@ public class GlobalExceptionHandler {
      */
     @ExceptionHandler(ResourceLockedException.class)
     public SkillResponse handleResourceLocked(ResourceLockedException e) {
+        log.warn("[Exception] ResourceLocked: {}", e.getMessage());
+        return SkillResponse.ofSimpleText(e.getMessage());
+    }
+
+    /**
+     * 사용자 입력 오류 (잘못된 인자, 존재하지 않는 대상 등)
+     * 예: DuelUseCase — 상대를 찾을 수 없습니다
+     */
+    @ExceptionHandler(IllegalArgumentException.class)
+    public SkillResponse handleIllegalArgument(IllegalArgumentException e) {
+        log.warn("[Exception] IllegalArgument: {}", e.getMessage());
         return SkillResponse.ofSimpleText(e.getMessage());
     }
 
@@ -23,6 +36,7 @@ public class GlobalExceptionHandler {
      */
     @ExceptionHandler(Exception.class)
     public SkillResponse handleException(Exception e) {
+        log.error("[Exception] Unexpected error", e);
         return SkillResponse.ofSimpleText("오류가 발생했습니다. 잠시 후 다시 시도해 주세요.");
     }
 }
