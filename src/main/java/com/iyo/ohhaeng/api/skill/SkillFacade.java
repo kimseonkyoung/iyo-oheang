@@ -1,6 +1,7 @@
 package com.iyo.ohhaeng.api.skill;
 
 import com.iyo.ohhaeng.api.skill.dto.SkillResponse;
+import com.iyo.ohhaeng.app.pipeline.DbGateStage;
 import com.iyo.ohhaeng.app.pipeline.DecodeStage;
 import com.iyo.ohhaeng.app.pipeline.IdempotencyStage;
 import com.iyo.ohhaeng.app.pipeline.NormalizeStage;
@@ -23,6 +24,7 @@ import java.util.List;
 public class SkillFacade {
 
     private final Pipeline pipeline;
+    private final DbGateStage dbGateStage;
     private final GetMyInfoUseCase getMyInfoUseCase;
     private final HuntUseCase huntUseCase;
     private final EnhanceUseCase enhanceUseCase;
@@ -32,6 +34,7 @@ public class SkillFacade {
     public SkillFacade(DecodeStage decodeStage, NormalizeStage normalizeStage,
                        ParseStage parseStage,
                        IdempotencyStage idempotencyStage,
+                       DbGateStage dbGateStage,
                        RateLimitStageNoop rateLimitStageNoop,
                        GetMyInfoUseCase getMyInfoUseCase,
                        HuntUseCase huntUseCase,
@@ -39,8 +42,9 @@ public class SkillFacade {
                        RerollUseCase rerollUseCase,
                        DuelUseCase duelUseCase) {
         this.pipeline = new Pipeline(List.of(
-                decodeStage, normalizeStage, parseStage, idempotencyStage, rateLimitStageNoop
+                decodeStage, normalizeStage, parseStage, idempotencyStage, dbGateStage, rateLimitStageNoop
         ));
+        this.dbGateStage = dbGateStage;
         this.getMyInfoUseCase = getMyInfoUseCase;
         this.huntUseCase = huntUseCase;
         this.enhanceUseCase = enhanceUseCase;
@@ -57,22 +61,31 @@ public class SkillFacade {
             if ("IDEM_HIT".equals(ctx.failReason())) {
                 return SkillResponse.ofSimpleText("이미 처리된 요청입니다.");
             }
+            if ("DB_GATE_FULL".equals(ctx.failReason())) {
+                return SkillResponse.ofSimpleText("잠시 후 다시 시도해 주세요.");
+            }
             return SkillResponse.ofSimpleText("요청을 처리할 수 없습니다. 잠시 후 다시 시도해 주세요.");
         }
 
         log.info("[Skill] requestId={}, userId={}, command={}, hasCallback={}",
                 requestId, ctx.userId(), ctx.command().type(), ctx.callbackUrl() != null);
 
-        return switch (ctx.command().type()) {
-            case MY_INFO -> SkillResponse.ofSimpleText(getMyInfoUseCase.execute(ctx.userId()));
-            case RANKING -> SkillResponse.ofSimpleText("[랭킹] 준비 중입니다.");
-            case HUNT    -> SkillResponse.ofSimpleText(huntUseCase.execute(ctx.userId()));
-            case ENHANCE -> SkillResponse.ofSimpleText(enhanceUseCase.execute(ctx.userId()));
-            case REROLL  -> SkillResponse.ofSimpleText(rerollUseCase.execute(ctx.userId()));
-            case DUEL    -> SkillResponse.ofSimpleText(
-                    duelUseCase.execute(ctx.userId(), ctx.command().args().get("target")));
-            case RAID    -> SkillResponse.ofSimpleText("[레이드] 준비 중입니다.");
-            case UNKNOWN -> SkillResponse.ofSimpleText("알 수 없는 명령어예요.");
-        };
+        try {
+            return switch (ctx.command().type()) {
+                case MY_INFO -> SkillResponse.ofSimpleText(getMyInfoUseCase.execute(ctx.userId()));
+                case RANKING -> SkillResponse.ofSimpleText("[랭킹] 준비 중입니다.");
+                case HUNT    -> SkillResponse.ofSimpleText(huntUseCase.execute(ctx.userId()));
+                case ENHANCE -> SkillResponse.ofSimpleText(enhanceUseCase.execute(ctx.userId()));
+                case REROLL  -> SkillResponse.ofSimpleText(rerollUseCase.execute(ctx.userId()));
+                case DUEL    -> SkillResponse.ofSimpleText(
+                        duelUseCase.execute(ctx.userId(), ctx.command().args().get("target")));
+                case RAID    -> SkillResponse.ofSimpleText("[레이드] 준비 중입니다.");
+                case UNKNOWN -> SkillResponse.ofSimpleText("알 수 없는 명령어예요.");
+            };
+        } finally {
+            if (ctx.isDbPermitAcquired()) {
+                dbGateStage.release();
+            }
+        }
     }
 }

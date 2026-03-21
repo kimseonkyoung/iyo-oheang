@@ -2,6 +2,7 @@ package com.iyo.ohhaeng.api.skill;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.iyo.ohhaeng.app.command.CommandParser;
+import com.iyo.ohhaeng.app.pipeline.DbGateStage;
 import com.iyo.ohhaeng.app.pipeline.DecodeStage;
 import com.iyo.ohhaeng.app.pipeline.IdempotencyStage;
 import com.iyo.ohhaeng.app.pipeline.NormalizeStage;
@@ -36,6 +37,7 @@ class SkillControllerTest {
         NormalizeStage normalizeStage = new NormalizeStage();
         ParseStage parseStage = new ParseStage(new CommandParser());
         IdempotencyStage idempotencyStage = new IdempotencyStage(new IdempotencyStore());
+        DbGateStage dbGateStage = new DbGateStage(10);
         RateLimitStageNoop rateLimitStageNoop = new RateLimitStageNoop();
 
         GetMyInfoUseCase getMyInfoUseCase = mock(GetMyInfoUseCase.class);
@@ -54,7 +56,7 @@ class SkillControllerTest {
         when(duelUseCase.execute(anyString(), anyString())).thenReturn("[대결 결과]\nvs @홍길동\n승리! (120 vs 95)");
 
         SkillFacade skillFacade = new SkillFacade(
-                decodeStage, normalizeStage, parseStage, idempotencyStage, rateLimitStageNoop,
+                decodeStage, normalizeStage, parseStage, idempotencyStage, dbGateStage, rateLimitStageNoop,
                 getMyInfoUseCase, huntUseCase, enhanceUseCase, rerollUseCase, duelUseCase);
 
         mockMvc = MockMvcBuilders.standaloneSetup(new SkillController(skillFacade)).build();
