@@ -7,7 +7,7 @@ import com.iyo.ohhaeng.app.pipeline.IdempotencyStage;
 import com.iyo.ohhaeng.app.pipeline.NormalizeStage;
 import com.iyo.ohhaeng.app.pipeline.ParseStage;
 import com.iyo.ohhaeng.app.pipeline.Pipeline;
-import com.iyo.ohhaeng.app.pipeline.RateLimitStageNoop;
+import com.iyo.ohhaeng.app.pipeline.RateLimitStage;
 import com.iyo.ohhaeng.app.pipeline.SkillContext;
 import com.iyo.ohhaeng.app.usecase.DuelUseCase;
 import com.iyo.ohhaeng.app.usecase.EnhanceUseCase;
@@ -34,15 +34,15 @@ public class SkillFacade {
     public SkillFacade(DecodeStage decodeStage, NormalizeStage normalizeStage,
                        ParseStage parseStage,
                        IdempotencyStage idempotencyStage,
+                       RateLimitStage rateLimitStage,
                        DbGateStage dbGateStage,
-                       RateLimitStageNoop rateLimitStageNoop,
                        GetMyInfoUseCase getMyInfoUseCase,
                        HuntUseCase huntUseCase,
                        EnhanceUseCase enhanceUseCase,
                        RerollUseCase rerollUseCase,
                        DuelUseCase duelUseCase) {
         this.pipeline = new Pipeline(List.of(
-                decodeStage, normalizeStage, parseStage, idempotencyStage, dbGateStage, rateLimitStageNoop
+                decodeStage, normalizeStage, parseStage, idempotencyStage, rateLimitStage, dbGateStage
         ));
         this.dbGateStage = dbGateStage;
         this.getMyInfoUseCase = getMyInfoUseCase;
@@ -54,23 +54,23 @@ public class SkillFacade {
 
     public SkillResponse process(String rawJson, String requestId) {
         SkillContext ctx = new SkillContext(rawJson, requestId);
-        pipeline.run(ctx);
-
-        if (ctx.isFailed()) {
-            log.warn("[Skill] pipeline failed: requestId={}, reason={}", requestId, ctx.failReason());
-            if ("IDEM_HIT".equals(ctx.failReason())) {
-                return SkillResponse.ofSimpleText("이미 처리된 요청입니다.");
-            }
-            if ("DB_GATE_FULL".equals(ctx.failReason())) {
-                return SkillResponse.ofSimpleText("잠시 후 다시 시도해 주세요.");
-            }
-            return SkillResponse.ofSimpleText("요청을 처리할 수 없습니다. 잠시 후 다시 시도해 주세요.");
-        }
-
-        log.info("[Skill] requestId={}, userId={}, command={}, hasCallback={}",
-                requestId, ctx.userId(), ctx.command().type(), ctx.callbackUrl() != null);
 
         try {
+            pipeline.run(ctx);
+
+            if (ctx.isFailed()) {
+                log.warn("[Skill] pipeline failed: requestId={}, reason={}", requestId, ctx.failReason());
+                return switch (ctx.failReason()) {
+                    case "IDEM_HIT"      -> SkillResponse.ofSimpleText("이미 처리된 요청입니다.");
+                    case "RATE_LIMIT"    -> SkillResponse.ofSimpleText("요청이 너무 많습니다. 잠시 후 다시 시도해 주세요.");
+                    case "DB_GATE_FULL"  -> SkillResponse.ofSimpleText("잠시 후 다시 시도해 주세요.");
+                    default              -> SkillResponse.ofSimpleText("요청을 처리할 수 없습니다. 잠시 후 다시 시도해 주세요.");
+                };
+            }
+
+            log.info("[Skill] requestId={}, userId={}, command={}, hasCallback={}",
+                    requestId, ctx.userId(), ctx.command().type(), ctx.callbackUrl() != null);
+
             return switch (ctx.command().type()) {
                 case MY_INFO -> SkillResponse.ofSimpleText(getMyInfoUseCase.execute(ctx.userId()));
                 case RANKING -> SkillResponse.ofSimpleText("[랭킹] 준비 중입니다.");
