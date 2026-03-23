@@ -24,8 +24,10 @@ public class GetMyInfoUseCase {
         user.recalcResources(clockHolder.now());
         Weapon weapon = weaponRepository.findByUserId(userId);
 
-        return "[내 정보]\n속성: " + weapon.getElementType() + "  강화: +" + weapon.getEnhanceLevel()
-                + "\nHP: " + user.getHp() + "/" + user.getMaxHp()
+        return "[내 정보]\n"
+                + "무기: " + weapon.displayName() + "\n"
+                + "속성: " + weapon.getElementType().display() + "\n"
+                + "HP: " + user.getHp() + "/" + user.getMaxHp()
                 + "  스태미나: " + user.getStamina() + "/" + user.getMaxStamina();
     }
 }
