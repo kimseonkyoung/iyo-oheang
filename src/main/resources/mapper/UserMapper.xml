@@ -7,19 +7,19 @@
     <resultMap id="userResultMap" type="com.iyo.ohhaeng.domain.user.User">
         <constructor>
             <idArg column="USER_ID"         javaType="String"/>
-            <arg   column="CUR_HP"          javaType="int"/>
-            <arg   column="MAX_HP"          javaType="int"/>
-            <arg   column="CUR_STAMINA"     javaType="int"/>
-            <arg   column="MAX_STAMINA"     javaType="int"/>
-            <arg   column="EXPERIENCE"      javaType="long"/>
-            <arg   column="GOLD"            javaType="long"/>
+            <arg   column="CUR_HP"          javaType="_int"/>
+            <arg   column="MAX_HP"          javaType="_int"/>
+            <arg   column="CUR_STAMINA"     javaType="_int"/>
+            <arg   column="MAX_STAMINA"     javaType="_int"/>
+            <arg   column="EXPERIENCE"      javaType="_long"/>
+            <arg   column="GOLD"            javaType="_long"/>
             <arg   column="LAST_CALC_AT"    javaType="java.time.Instant"
                    typeHandler="com.iyo.ohhaeng.infra.db.typehandler.InstantTypeHandler"/>
             <arg   column="DOWN_UNTIL"      javaType="java.time.Instant"
                    typeHandler="com.iyo.ohhaeng.infra.db.typehandler.InstantTypeHandler"/>
             <arg   column="LAST_REROLL_AT"  javaType="java.time.Instant"
                    typeHandler="com.iyo.ohhaeng.infra.db.typehandler.InstantTypeHandler"/>
-            <arg   column="DAILY_REROLL_CNT"  javaType="int"/>
+            <arg   column="DAILY_REROLL_CNT"  javaType="_int"/>
         </constructor>
     </resultMap>
 
@@ -54,8 +54,8 @@
             EXPERIENCE      = #{experience},
             GOLD            = #{gold},
             LAST_CALC_AT    = #{lastCalcAt,   typeHandler=com.iyo.ohhaeng.infra.db.typehandler.InstantTypeHandler},
-            DOWN_UNTIL      = #{downUntil,    typeHandler=com.iyo.ohhaeng.infra.db.typehandler.InstantTypeHandler},
-            LAST_REROLL_AT  = #{lastRerollAt, typeHandler=com.iyo.ohhaeng.infra.db.typehandler.InstantTypeHandler},
+            DOWN_UNTIL      = #{downUntil,    typeHandler=com.iyo.ohhaeng.infra.db.typehandler.InstantTypeHandler, jdbcType=TIMESTAMP},
+            LAST_REROLL_AT  = #{lastRerollAt, typeHandler=com.iyo.ohhaeng.infra.db.typehandler.InstantTypeHandler, jdbcType=TIMESTAMP},
             DAILY_REROLL_CNT  = #{dailyRerollCount}
         WHERE USER_ID = #{userId}
     </update>

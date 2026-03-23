@@ -8,8 +8,8 @@
         <constructor>
             <arg column="USER_NAME"     javaType="String"/>
             <arg column="ELEMENT_TYPE"  javaType="com.iyo.ohhaeng.domain.weapon.ElementType"/>
-            <arg column="ENHANCE_LEVEL" javaType="int"/>
-            <arg column="EXPERIENCE"    javaType="long"/>
+            <arg column="ENHANCE_LEVEL" javaType="_int"/>
+            <arg column="EXPERIENCE"    javaType="_long"/>
         </constructor>
     </resultMap>
 
