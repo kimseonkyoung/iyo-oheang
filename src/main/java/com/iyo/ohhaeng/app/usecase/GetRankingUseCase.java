@@ -1,7 +1,6 @@
 package com.iyo.ohhaeng.app.usecase;
 
 import com.iyo.ohhaeng.domain.ranking.RankEntry;
-import com.iyo.ohhaeng.domain.weapon.ElementType;
 import com.iyo.ohhaeng.infra.db.RankingRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -32,20 +31,10 @@ public class GetRankingUseCase {
             sb.append(String.format(Locale.KOREA, "%d위 %s %s +%d %,d EXP\n",
                     i + 1,
                     e.getUserName(),
-                    elementDisplay(e.getElementType()),
+                    e.getElementType().display(),
                     e.getEnhanceLevel(),
                     e.getExperience()));
         }
         return sb.toString().stripTrailing();
-    }
-
-    private String elementDisplay(ElementType type) {
-        return switch (type) {
-            case WOOD  -> "목(木)";
-            case FIRE  -> "화(火)";
-            case EARTH -> "토(土)";
-            case METAL -> "금(金)";
-            case WATER -> "수(水)";
-        };
     }
 }
