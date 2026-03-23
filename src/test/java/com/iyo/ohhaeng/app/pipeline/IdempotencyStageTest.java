@@ -4,6 +4,7 @@ import com.iyo.ohhaeng.app.command.Command;
 import com.iyo.ohhaeng.app.command.CommandType;
 import com.iyo.ohhaeng.infra.idem.IdempotencyStore;
 import org.junit.jupiter.api.BeforeEach;
+import java.time.Instant;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -15,7 +16,7 @@ class IdempotencyStageTest {
 
     @BeforeEach
     void setUp() {
-        stage = new IdempotencyStage(new IdempotencyStore());
+        stage = new IdempotencyStage(new IdempotencyStore(), Instant::now);
     }
 
     // ── Strong Idem ───────────────────────────────────────────────────

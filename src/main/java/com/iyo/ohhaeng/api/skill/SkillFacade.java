@@ -73,16 +73,16 @@ public class SkillFacade {
             }
 
             log.info("[Skill] requestId={}, userId={}, command={}, hasCallback={}",
-                    requestId, ctx.userId(), ctx.command().type(), ctx.callbackUrl() != null);
+                    requestId, ctx.userId(), ctx.command().getType(), ctx.callbackUrl() != null);
 
-            return switch (ctx.command().type()) {
+            return switch (ctx.command().getType()) {
                 case MY_INFO -> SkillResponse.ofSimpleText(getMyInfoUseCase.execute(ctx.userId()));
                 case RANKING -> SkillResponse.ofSimpleText(getRankingUseCase.execute());
                 case HUNT    -> SkillResponse.ofSimpleText(huntUseCase.execute(ctx.userId()));
                 case ENHANCE -> SkillResponse.ofSimpleText(enhanceUseCase.execute(ctx.userId()));
                 case REROLL  -> SkillResponse.ofSimpleText(rerollUseCase.execute(ctx.userId()));
                 case DUEL    -> SkillResponse.ofSimpleText(
-                        duelUseCase.execute(ctx.userId(), ctx.command().args().get("target")));
+                        duelUseCase.execute(ctx.userId(), ctx.command().getArgs().get("target")));
                 case RAID    -> SkillResponse.ofSimpleText("[레이드] 준비 중입니다.");
                 case UNKNOWN -> SkillResponse.ofSimpleText("알 수 없는 명령어예요.");
             };

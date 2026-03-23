@@ -3,10 +3,9 @@ package com.iyo.ohhaeng.app.pipeline;
 import com.iyo.ohhaeng.app.command.CommandType;
 import com.iyo.ohhaeng.infra.idem.IdempotencyKey;
 import com.iyo.ohhaeng.infra.idem.IdempotencyStore;
+import com.iyo.ohhaeng.infra.time.ClockHolder;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
-
-import java.time.Instant;
 
 /**
  * 파이프라인 Hook: 중복 요청 차단.
@@ -22,6 +21,7 @@ import java.time.Instant;
 public class IdempotencyStage implements Stage {
 
     private final IdempotencyStore store;
+    private final ClockHolder clockHolder;
 
     @Override
     public void process(SkillContext ctx) {
@@ -34,7 +34,7 @@ public class IdempotencyStage implements Stage {
             idemKey = IdempotencyKey.req(userId, ctx.requestId());
             idemTtl = 60;
         } else {
-            long timeBucket = Instant.now().toEpochMilli() / 2000;
+            long timeBucket = clockHolder.now().toEpochMilli() / 2000;
             idemKey = IdempotencyKey.alt(userId, ctx.normalizedUtterance().hashCode(), timeBucket);
             idemTtl = 5;
         }
@@ -45,8 +45,8 @@ public class IdempotencyStage implements Stage {
         }
 
         // 2. 디바운스 체크 (쓰기 커맨드만)
-        if (isWriteCommand(ctx.command().type())) {
-            String debounceKey = IdempotencyKey.cmd(userId, ctx.command().type());
+        if (isWriteCommand(ctx.command().getType())) {
+            String debounceKey = IdempotencyKey.cmd(userId, ctx.command().getType());
             if (!store.trySet(debounceKey, 1)) {
                 ctx.fail("IDEM_HIT");
             }
