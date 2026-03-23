@@ -12,6 +12,7 @@ import com.iyo.ohhaeng.app.pipeline.SkillContext;
 import com.iyo.ohhaeng.app.usecase.DuelUseCase;
 import com.iyo.ohhaeng.app.usecase.EnhanceUseCase;
 import com.iyo.ohhaeng.app.usecase.GetMyInfoUseCase;
+import com.iyo.ohhaeng.app.usecase.GetRankingUseCase;
 import com.iyo.ohhaeng.app.usecase.HuntUseCase;
 import com.iyo.ohhaeng.app.usecase.RerollUseCase;
 import lombok.extern.slf4j.Slf4j;
@@ -26,6 +27,7 @@ public class SkillFacade {
     private final Pipeline pipeline;
     private final DbGateStage dbGateStage;
     private final GetMyInfoUseCase getMyInfoUseCase;
+    private final GetRankingUseCase getRankingUseCase;
     private final HuntUseCase huntUseCase;
     private final EnhanceUseCase enhanceUseCase;
     private final RerollUseCase rerollUseCase;
@@ -37,6 +39,7 @@ public class SkillFacade {
                        RateLimitStage rateLimitStage,
                        DbGateStage dbGateStage,
                        GetMyInfoUseCase getMyInfoUseCase,
+                       GetRankingUseCase getRankingUseCase,
                        HuntUseCase huntUseCase,
                        EnhanceUseCase enhanceUseCase,
                        RerollUseCase rerollUseCase,
@@ -46,6 +49,7 @@ public class SkillFacade {
         ));
         this.dbGateStage = dbGateStage;
         this.getMyInfoUseCase = getMyInfoUseCase;
+        this.getRankingUseCase = getRankingUseCase;
         this.huntUseCase = huntUseCase;
         this.enhanceUseCase = enhanceUseCase;
         this.rerollUseCase = rerollUseCase;
@@ -73,7 +77,7 @@ public class SkillFacade {
 
             return switch (ctx.command().type()) {
                 case MY_INFO -> SkillResponse.ofSimpleText(getMyInfoUseCase.execute(ctx.userId()));
-                case RANKING -> SkillResponse.ofSimpleText("[랭킹] 준비 중입니다.");
+                case RANKING -> SkillResponse.ofSimpleText(getRankingUseCase.execute());
                 case HUNT    -> SkillResponse.ofSimpleText(huntUseCase.execute(ctx.userId()));
                 case ENHANCE -> SkillResponse.ofSimpleText(enhanceUseCase.execute(ctx.userId()));
                 case REROLL  -> SkillResponse.ofSimpleText(rerollUseCase.execute(ctx.userId()));

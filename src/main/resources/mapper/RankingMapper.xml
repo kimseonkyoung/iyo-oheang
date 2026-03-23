@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.iyo.ohhaeng.infra.db.mapper.RankingMapper">
+
+    <resultMap id="rankEntryResultMap" type="com.iyo.ohhaeng.domain.ranking.RankEntry">
+        <constructor>
+            <arg column="USER_NAME"     javaType="String"/>
+            <arg column="ELEMENT_TYPE"  javaType="com.iyo.ohhaeng.domain.weapon.ElementType"/>
+            <arg column="ENHANCE_LEVEL" javaType="int"/>
+            <arg column="EXPERIENCE"    javaType="long"/>
+        </constructor>
+    </resultMap>
+
+    <select id="findTop" resultMap="rankEntryResultMap">
+        SELECT u.USER_NAME, w.ELEMENT_TYPE, w.ENHANCE_LEVEL, u.EXPERIENCE
+        FROM O_USERS u
+        JOIN O_WEAPONS w ON w.OWNER_ID = u.USER_ID
+        ORDER BY u.EXPERIENCE DESC
+        FETCH FIRST #{limit} ROWS ONLY
+    </select>
+
+</mapper>
