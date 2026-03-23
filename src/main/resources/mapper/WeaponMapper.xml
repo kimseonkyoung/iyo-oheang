@@ -9,7 +9,7 @@
             <idArg column="WEAPON_ID"     javaType="String"/>
             <arg   column="OWNER_ID"      javaType="String"/>
             <arg   column="ELEMENT_TYPE"  javaType="com.iyo.ohhaeng.domain.weapon.ElementType"/>
-            <arg   column="ENHANCE_LEVEL" javaType="int"/>
+            <arg   column="ENHANCE_LEVEL" javaType="_int"/>
         </constructor>
     </resultMap>
 

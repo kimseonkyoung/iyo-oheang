@@ -1,7 +1,7 @@
 services:
   oracle:
     image: gvenzl/oracle-free:23-slim
-    container_name: ohaeng-oracle-xe
+    container_name: ohhaeng-oracle-xe
     ports:
       - "1521:1521"
     environment:
