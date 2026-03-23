@@ -13,6 +13,7 @@ import com.iyo.ohhaeng.infra.idem.IdempotencyStore;
 import com.iyo.ohhaeng.infra.ratelimit.RateLimitStore;
 import com.iyo.ohhaeng.app.usecase.EnhanceUseCase;
 import com.iyo.ohhaeng.app.usecase.GetMyInfoUseCase;
+import com.iyo.ohhaeng.app.usecase.GetRankingUseCase;
 import com.iyo.ohhaeng.app.usecase.HuntUseCase;
 import com.iyo.ohhaeng.app.usecase.RerollUseCase;
 
@@ -37,12 +38,15 @@ class SkillControllerTest {
         DecodeStage decodeStage = new DecodeStage(new ObjectMapper());
         NormalizeStage normalizeStage = new NormalizeStage();
         ParseStage parseStage = new ParseStage(new CommandParser());
-        IdempotencyStage idempotencyStage = new IdempotencyStage(new IdempotencyStore());
+        IdempotencyStage idempotencyStage = new IdempotencyStage(new IdempotencyStore(), java.time.Instant::now);
         RateLimitStage rateLimitStage = new RateLimitStage(new RateLimitStore(), 30, 60);
         DbGateStage dbGateStage = new DbGateStage(10);
 
         GetMyInfoUseCase getMyInfoUseCase = mock(GetMyInfoUseCase.class);
         when(getMyInfoUseCase.execute(anyString())).thenReturn("[내 정보]\n속성: WOOD  강화: +0\nHP: 100/100  스태미나: 50/50");
+
+        GetRankingUseCase getRankingUseCase = mock(GetRankingUseCase.class);
+        when(getRankingUseCase.execute()).thenReturn("[랭킹] 서버 TOP 20\n\n1위 Alice 목(木) +5 1,200 EXP");
 
         HuntUseCase huntUseCase = mock(HuntUseCase.class);
         when(huntUseCase.execute(anyString())).thenReturn("[사냥 결과]\n피해: 25  HP: 75/100\n경험치 +10  골드 +200");
@@ -58,7 +62,7 @@ class SkillControllerTest {
 
         SkillFacade skillFacade = new SkillFacade(
                 decodeStage, normalizeStage, parseStage, idempotencyStage, rateLimitStage, dbGateStage,
-                getMyInfoUseCase, huntUseCase, enhanceUseCase, rerollUseCase, duelUseCase);
+                getMyInfoUseCase, getRankingUseCase, huntUseCase, enhanceUseCase, rerollUseCase, duelUseCase);
 
         mockMvc = MockMvcBuilders.standaloneSetup(new SkillController(skillFacade)).build();
     }

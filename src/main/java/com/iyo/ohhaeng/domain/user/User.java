@@ -52,10 +52,14 @@ public class User {
         this.stamina -= 1;
     }
 
-    public void applyHuntResult(int damage) {
+    public static final int HUNT_EXP_REWARD  = 10;
+    public static final int HUNT_GOLD_REWARD = 200;
+
+    public void applyHuntResult(int damage, Instant now) {
         this.hp = max(0, hp - damage);
-        this.experience += 10;
-        this.gold += 200;
+        this.experience += HUNT_EXP_REWARD;
+        this.gold += HUNT_GOLD_REWARD;
+        if (this.hp == 0) knockDown(now);
     }
 
     public boolean isDown(Instant now) {

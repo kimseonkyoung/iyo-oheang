@@ -1,5 +1,7 @@
 package com.iyo.ohhaeng.app.command;
 
+import lombok.Getter;
+
 import java.util.Map;
 
 /**
@@ -8,7 +10,16 @@ import java.util.Map;
  *   DUEL  → "target" (상대 userId 또는 닉네임)
  *   그 외 → 비어 있음
  */
-public record Command(CommandType type, Map<String, String> args) {
+@Getter
+public class Command {
+
+    private final CommandType type;
+    private final Map<String, String> args;
+
+    private Command(CommandType type, Map<String, String> args) {
+        this.type = type;
+        this.args = args;
+    }
 
     public static Command of(CommandType type) {
         return new Command(type, Map.of());

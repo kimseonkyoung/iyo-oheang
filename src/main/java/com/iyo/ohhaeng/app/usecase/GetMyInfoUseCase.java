@@ -20,7 +20,7 @@ public class GetMyInfoUseCase {
     @Transactional(readOnly = true)
     public String execute(String userId) {
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("유저를 찾을 수 없습니다."));
+                .orElseThrow(() -> new IllegalArgumentException("유저를 찾을 수 없습니다: " + userId));
         user.recalcResources(clockHolder.now());
         Weapon weapon = weaponRepository.findByUserId(userId);
 
