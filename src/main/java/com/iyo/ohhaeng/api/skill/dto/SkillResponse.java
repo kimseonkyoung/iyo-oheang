@@ -17,8 +17,7 @@ public class SkillResponse {
     }
 
     public static SkillResponse ofSimpleText(String text) {
-        Payload payload = new Payload(text);
-        SimpleText simpleText = new SimpleText(payload);
+        SimpleText simpleText = new SimpleText(text);
         Output output = new Output(simpleText);
         Template template = new Template(List.of(output));
         return new SkillResponse("2.0", template);
@@ -59,21 +58,9 @@ public class SkillResponse {
     }
 
     public static class SimpleText {
-        private final Payload payload;
-
-        public SimpleText(Payload payload) {
-            this.payload = payload;
-        }
-
-        public Payload getPayload() {
-            return payload;
-        }
-    }
-
-    public static class Payload {
         private final String text;
 
-        public Payload(String text) {
+        public SimpleText(String text) {
             this.text = text;
         }
 
