@@ -30,7 +30,6 @@ public class EnhanceUseCase {
         User user = userRepository.findByIdForUpdate(userId);
         Weapon weapon = weaponRepository.findByUserId(userId);
 
-        if (user.isDown(now)) return "기절 중입니다.";
         if (weapon.isMaxLevel()) return "이미 최대 강화 레벨입니다.";
         user.recalcResources(now);
         if (!user.hasGold(ENHANCE_COST)) return "골드가 부족합니다.";

@@ -10,6 +10,7 @@ import com.iyo.ohhaeng.app.pipeline.ParseStage;
 import com.iyo.ohhaeng.app.pipeline.RateLimitStage;
 import com.iyo.ohhaeng.app.usecase.DuelUseCase;
 import com.iyo.ohhaeng.app.usecase.RegisterUseCase;
+import com.iyo.ohhaeng.app.usecase.RenameUseCase;
 import com.iyo.ohhaeng.infra.idem.IdempotencyStore;
 import com.iyo.ohhaeng.infra.ratelimit.RateLimitStore;
 import com.iyo.ohhaeng.app.usecase.EnhanceUseCase;
@@ -44,6 +45,7 @@ class SkillControllerTest {
         DbGateStage dbGateStage = new DbGateStage(10);
 
         RegisterUseCase registerUseCase = mock(RegisterUseCase.class);
+        RenameUseCase renameUseCase = mock(RenameUseCase.class);
 
         GetMyInfoUseCase getMyInfoUseCase = mock(GetMyInfoUseCase.class);
         when(getMyInfoUseCase.execute(anyString())).thenReturn("[내 정보]\n속성: WOOD  강화: +0\nHP: 100/100  스태미나: 50/50");
@@ -65,7 +67,7 @@ class SkillControllerTest {
 
         SkillFacade skillFacade = new SkillFacade(
                 decodeStage, normalizeStage, parseStage, idempotencyStage, rateLimitStage, dbGateStage,
-                registerUseCase, getMyInfoUseCase, getRankingUseCase, huntUseCase, enhanceUseCase, rerollUseCase, duelUseCase);
+                registerUseCase, renameUseCase, getMyInfoUseCase, getRankingUseCase, huntUseCase, enhanceUseCase, rerollUseCase, duelUseCase);
 
         mockMvc = MockMvcBuilders.standaloneSetup(new SkillController(skillFacade)).build();
     }

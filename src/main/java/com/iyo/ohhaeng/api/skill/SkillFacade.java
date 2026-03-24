@@ -16,6 +16,7 @@ import com.iyo.ohhaeng.app.usecase.GetMyInfoUseCase;
 import com.iyo.ohhaeng.app.usecase.GetRankingUseCase;
 import com.iyo.ohhaeng.app.usecase.HuntUseCase;
 import com.iyo.ohhaeng.app.usecase.RegisterUseCase;
+import com.iyo.ohhaeng.app.usecase.RenameUseCase;
 import com.iyo.ohhaeng.app.usecase.RerollUseCase;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -29,12 +30,13 @@ public class SkillFacade {
 
     private static final Set<CommandType> USER_COMMANDS = Set.of(
             CommandType.MY_INFO, CommandType.HUNT, CommandType.ENHANCE,
-            CommandType.REROLL, CommandType.DUEL
+            CommandType.REROLL, CommandType.DUEL, CommandType.RENAME
     );
 
     private final Pipeline pipeline;
     private final DbGateStage dbGateStage;
     private final RegisterUseCase registerUseCase;
+    private final RenameUseCase renameUseCase;
     private final GetMyInfoUseCase getMyInfoUseCase;
     private final GetRankingUseCase getRankingUseCase;
     private final HuntUseCase huntUseCase;
@@ -48,6 +50,7 @@ public class SkillFacade {
                        RateLimitStage rateLimitStage,
                        DbGateStage dbGateStage,
                        RegisterUseCase registerUseCase,
+                       RenameUseCase renameUseCase,
                        GetMyInfoUseCase getMyInfoUseCase,
                        GetRankingUseCase getRankingUseCase,
                        HuntUseCase huntUseCase,
@@ -59,6 +62,7 @@ public class SkillFacade {
         ));
         this.dbGateStage = dbGateStage;
         this.registerUseCase = registerUseCase;
+        this.renameUseCase = renameUseCase;
         this.getMyInfoUseCase = getMyInfoUseCase;
         this.getRankingUseCase = getRankingUseCase;
         this.huntUseCase = huntUseCase;
@@ -98,6 +102,8 @@ public class SkillFacade {
                 case REROLL  -> SkillResponse.ofSimpleText(rerollUseCase.execute(ctx.userId()));
                 case DUEL    -> SkillResponse.ofSimpleText(
                         duelUseCase.execute(ctx.userId(), ctx.command().getArgs().get("target")));
+                case RENAME  -> SkillResponse.ofSimpleText(
+                        renameUseCase.execute(ctx.userId(), ctx.command().getArgs().get("name")));
                 case RAID    -> SkillResponse.ofSimpleText("[레이드] 준비 중입니다.");
                 case UNKNOWN -> SkillResponse.ofSimpleText("알 수 없는 명령어예요.");
             };

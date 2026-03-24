@@ -14,6 +14,9 @@ public enum CommandType {
     DUEL,      // /대결 @상대
     RAID,      // /레이드
 
+    // 설정
+    RENAME,    // /이름 [닉네임]
+
     // 파싱 실패
     UNKNOWN
 }

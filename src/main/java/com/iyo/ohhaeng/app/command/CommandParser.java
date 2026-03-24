@@ -14,7 +14,8 @@ public class CommandParser {
             "강화",  CommandType.ENHANCE,
             "리롤",  CommandType.REROLL,
             "대결",  CommandType.DUEL,
-            "레이드", CommandType.RAID
+            "레이드", CommandType.RAID,
+            "이름",  CommandType.RENAME
     );
 
     public Command parse(String normalizedUtterance) {
@@ -32,9 +33,22 @@ public class CommandParser {
         }
 
         return switch (type) {
-            case DUEL -> parseDuel(parts);
-            default   -> Command.of(type);
+            case DUEL   -> parseDuel(parts);
+            case RENAME -> parseRename(parts);
+            default     -> Command.of(type);
         };
+    }
+
+    // "이름 김선경" → Command(RENAME, {name: "김선경"})
+    private Command parseRename(String[] parts) {
+        if (parts.length < 2 || parts[1].isBlank()) {
+            return Command.unknown();
+        }
+        String name = parts[1].strip();
+        if (name.length() > 12) {
+            return Command.unknown();
+        }
+        return Command.of(CommandType.RENAME, Map.of("name", name));
     }
 
     // "대결 @홍길동" → Command(DUEL, {target: "홍길동"})
