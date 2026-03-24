@@ -32,7 +32,6 @@ public class RerollUseCase {
         User user = userRepository.findByIdForUpdate(userId);
         Weapon weapon = weaponRepository.findByUserId(userId);
 
-        if (user.isDown(now))                    return "기절 중입니다.";
         if (user.isRerollOnCooldown(now))         return "리롤 쿨다운 중입니다. (10분)";
         if (user.isRerollLimitReached(now))       return "오늘 리롤 횟수를 모두 사용했습니다. (일 3회)";
         if (weapon.getEnhanceLevel() > MAX_REROLLABLE_LEVEL)

@@ -53,6 +53,10 @@
         WHERE NOT EXISTS (SELECT 1 FROM O_USERS WHERE USER_ID = #{userId})
     </insert>
 
+    <update id="updateName">
+        UPDATE O_USERS SET USER_NAME = #{userName} WHERE USER_ID = #{userId}
+    </update>
+
     <update id="update" parameterType="com.iyo.ohhaeng.domain.user.User">
         UPDATE O_USERS
         SET CUR_HP          = #{hp},

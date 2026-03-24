@@ -29,6 +29,7 @@ public class GetMyInfoUseCase {
                 + "무기: " + weapon.displayName() + "\n"
                 + "속성: " + weapon.getElementType().display() + "\n"
                 + "HP: " + user.getHp() + "/" + user.getMaxHp()
-                + "  스태미나: " + user.getStamina() + "/" + user.getMaxStamina();
+                + "  스태미나: " + user.getStamina() + "/" + user.getMaxStamina() + "\n"
+                + "골드: " + user.getGold() + "  경험치: " + user.getExperience();
     }
 }
