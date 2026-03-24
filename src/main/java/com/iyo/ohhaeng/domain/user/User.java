@@ -77,6 +77,14 @@ public class User {
         return false;
     }
 
+    public String downRemainingText(Instant now) {
+        if (downUntil == null) return "";
+        long secs = Duration.between(now, downUntil).getSeconds();
+        if (secs <= 0) return "";
+        if (secs >= 60) return (secs / 60) + "분 " + (secs % 60) + "초";
+        return secs + "초";
+    }
+
     public void applyDuelLoss(Instant now) {
         this.hp = Math.max(0, hp - 10);
         if (this.hp == 0) knockDown(now);

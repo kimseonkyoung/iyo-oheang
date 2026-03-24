@@ -15,7 +15,8 @@ public class CommandParser {
             "리롤",  CommandType.REROLL,
             "대결",  CommandType.DUEL,
             "레이드", CommandType.RAID,
-            "이름",  CommandType.RENAME
+            "이름",  CommandType.RENAME,
+            "스킬",  CommandType.SKILL_INFO
     );
 
     public Command parse(String normalizedUtterance) {

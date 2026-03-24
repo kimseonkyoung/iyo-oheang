@@ -104,8 +104,18 @@ public class SkillFacade {
                         duelUseCase.execute(ctx.userId(), ctx.command().getArgs().get("target")));
                 case RENAME  -> SkillResponse.ofSimpleText(
                         renameUseCase.execute(ctx.userId(), ctx.command().getArgs().get("name")));
-                case RAID    -> SkillResponse.ofSimpleText("[레이드] 준비 중입니다.");
-                case UNKNOWN -> SkillResponse.ofSimpleText("알 수 없는 명령어예요.");
+                case RAID       -> SkillResponse.ofSimpleText("[레이드] 준비 중입니다.");
+                case SKILL_INFO -> SkillResponse.ofSimpleText(
+                        "[📖 오행전기 명령어]\n\n" +
+                        "/내정보 - 내 캐릭터 정보\n" +
+                        "/사냥 - 몬스터 사냥 (스태미나 1)\n" +
+                        "/대결 [이름] - 유저 결투\n" +
+                        "/강화 - 무기 강화 (골드 500)\n" +
+                        "/리롤 - 속성 변경 (일 3회)\n" +
+                        "/랭킹 - 서버 TOP 20\n" +
+                        "/이름 [닉네임] - 이름 변경\n" +
+                        "/스킬 - 명령어 목록");
+                case UNKNOWN -> SkillResponse.ofSimpleText("알 수 없는 명령어예요.\n/스킬 을 입력하면 명령어 목록을 볼 수 있어요.");
             };
         } finally {
             if (ctx.isDbPermitAcquired()) {
