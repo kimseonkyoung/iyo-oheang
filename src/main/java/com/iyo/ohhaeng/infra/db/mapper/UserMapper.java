@@ -9,6 +9,8 @@ import java.util.Optional;
 @Mapper
 public interface UserMapper {
 
+    void insert(@Param("userId") String userId, @Param("userName") String userName);
+
     Optional<User> findById(@Param("userId") String userId);
 
     Optional<User> findByName(@Param("name") String name);

@@ -25,6 +25,7 @@ public class GetMyInfoUseCase {
         Weapon weapon = weaponRepository.findByUserId(userId);
 
         return "[내 정보]\n"
+                + "이름: " + user.getUserName() + "\n"
                 + "무기: " + weapon.displayName() + "\n"
                 + "속성: " + weapon.getElementType().display() + "\n"
                 + "HP: " + user.getHp() + "/" + user.getMaxHp()

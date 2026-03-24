@@ -20,6 +20,7 @@ public class SkillContext {
     // ── DecodeStage가 채움 ───────────────────────────────────────────
     private String utterance;
     private String userId;
+    private String userName;   // Kakao properties.nickname (없으면 null)
     private String callbackUrl;
 
     // ── NormalizeStage가 채움 ────────────────────────────────────────
@@ -46,6 +47,7 @@ public class SkillContext {
     public String requestId()           { return requestId; }
     public String utterance()           { return utterance; }
     public String userId()              { return userId; }
+    public String userName()            { return userName; }
     public String callbackUrl()         { return callbackUrl; }
     public String normalizedUtterance() { return normalizedUtterance; }
     public Command command()            { return command; }
@@ -57,6 +59,7 @@ public class SkillContext {
 
     public void utterance(String utterance)                       { this.utterance = utterance; }
     public void userId(String userId)                             { this.userId = userId; }
+    public void userName(String userName)                         { this.userName = userName; }
     public void callbackUrl(String callbackUrl)                   { this.callbackUrl = callbackUrl; }
     public void normalizedUtterance(String normalizedUtterance)   { this.normalizedUtterance = normalizedUtterance; }
     public void command(Command command)                          { this.command = command; }

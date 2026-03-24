@@ -11,6 +11,7 @@ import static java.lang.Math.max;
 @Getter
 public class User {
     private String userId;
+    private String userName;
     private int hp;
     private int maxHp;
     private int stamina;
@@ -25,6 +26,7 @@ public class User {
     public User(String userId, int hp, int maxHp, int stamina, int maxStamina,
                 long experience, long gold, Instant lastCalcAt, Instant downUntil, Instant lastRerollAt, int dailyRerollCount) {
         this.userId = userId;
+        // userName is set via setUserName() by MyBatis result mapping
         this.hp = hp;
         this.maxHp = maxHp;
         this.stamina = stamina;
@@ -36,6 +38,8 @@ public class User {
         this.lastRerollAt = lastRerollAt;
         this.dailyRerollCount = dailyRerollCount;
     }
+
+    public void setUserName(String userName) { this.userName = userName; }
 
     public void recalcResources(Instant now) {
         long ticks = Duration.between(lastCalcAt, now).toSeconds() / 10;
