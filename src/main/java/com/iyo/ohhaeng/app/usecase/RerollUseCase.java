@@ -53,10 +53,10 @@ public class RerollUseCase {
         userRepository.update(user);
         weaponRepository.update(weapon);
 
-        return "[리롤 결과]\n"
-                + before.name() + " → " + after.name()
-                + "\n강화: +" + weapon.getEnhanceLevel()
-                + "  골드 -" + cost;
+        return "[🎲 리롤 결과]\n"
+                + before.emoji() + " " + before.display() + " → " + after.emoji() + " " + after.display() + "\n"
+                + "강화: +" + weapon.getEnhanceLevel() + "\n"
+                + "💰 골드 -" + cost;
     }
 
     private ElementType pickOther(ElementType current) {

@@ -25,12 +25,13 @@ public class GetRankingUseCase {
             return "[랭킹] 아직 등록된 유저가 없습니다.";
         }
 
-        StringBuilder sb = new StringBuilder("[랭킹] 서버 TOP ").append(TOP_N).append("\n\n");
+        StringBuilder sb = new StringBuilder("[🏆 랭킹] 서버 TOP ").append(TOP_N).append("\n\n");
         for (int i = 0; i < entries.size(); i++) {
             RankEntry e = entries.get(i);
-            sb.append(String.format(Locale.KOREA, "%d위 %s %s +%d %,d EXP\n",
+            sb.append(String.format(Locale.KOREA, "%d위 %s %s %s +%d  %,d EXP\n",
                     i + 1,
                     e.getUserName(),
+                    e.getElementType().emoji(),
                     e.getElementType().display(),
                     e.getEnhanceLevel(),
                     e.getExperience()));

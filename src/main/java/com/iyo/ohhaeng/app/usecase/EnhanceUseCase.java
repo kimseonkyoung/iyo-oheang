@@ -44,6 +44,6 @@ public class EnhanceUseCase {
         userRepository.update(user);
         weaponRepository.update(weapon);
 
-        return "[강화 결과]\n" + result + "\n골드 -" + ENHANCE_COST;
+        return "[🔨 강화 결과]\n" + result + "\n💰 골드 -" + ENHANCE_COST;
     }
 }

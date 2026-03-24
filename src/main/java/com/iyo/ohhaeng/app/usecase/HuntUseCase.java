@@ -39,9 +39,10 @@ public class HuntUseCase {
 
         userRepository.update(user);
 
-        return "[사냥 결과]\n"
-                + "피해: " + damage
-                + "  HP: " + user.getHp() + "/" + user.getMaxHp()
-                + "\n경험치 +" + User.HUNT_EXP_REWARD + "  골드 +" + User.HUNT_GOLD_REWARD;
+        return "[⚔️ 사냥 결과]\n"
+                + "💥 피해: " + damage + "\n"
+                + "❤️ HP: " + user.getHp() + "/" + user.getMaxHp() + "\n"
+                + "✨ 경험치 +" + User.HUNT_EXP_REWARD + "\n"
+                + "💰 골드 +" + User.HUNT_GOLD_REWARD;
     }
 }
