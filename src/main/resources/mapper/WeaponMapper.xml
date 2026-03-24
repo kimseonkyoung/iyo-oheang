@@ -19,6 +19,13 @@
         WHERE OWNER_ID = #{userId}
     </select>
 
+    <insert id="insert">
+        INSERT INTO O_WEAPONS (OWNER_ID, ELEMENT_TYPE)
+        SELECT #{ownerId}, #{elementType}
+        FROM DUAL
+        WHERE NOT EXISTS (SELECT 1 FROM O_WEAPONS WHERE OWNER_ID = #{ownerId})
+    </insert>
+
     <update id="update" parameterType="com.iyo.ohhaeng.domain.weapon.Weapon">
         UPDATE O_WEAPONS
         SET ENHANCE_LEVEL   = #{enhanceLevel},

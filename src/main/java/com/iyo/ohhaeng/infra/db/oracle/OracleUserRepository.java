@@ -15,6 +15,11 @@ public class OracleUserRepository implements UserRepository {
     private final UserMapper userMapper;
 
     @Override
+    public void insert(String userId, String userName) {
+        userMapper.insert(userId, userName);
+    }
+
+    @Override
     public Optional<User> findById(String userId) {
         return userMapper.findById(userId);
     }

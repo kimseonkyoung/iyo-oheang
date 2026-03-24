@@ -21,29 +21,37 @@
                    typeHandler="com.iyo.ohhaeng.infra.db.typehandler.InstantTypeHandler"/>
             <arg   column="DAILY_REROLL_CNT"  javaType="_int"/>
         </constructor>
+        <result column="USER_NAME" property="userName"/>
     </resultMap>
 
     <select id="findById" parameterType="String" resultMap="userResultMap">
-        SELECT USER_ID, CUR_HP, MAX_HP, CUR_STAMINA, MAX_STAMINA, EXPERIENCE, GOLD,
+        SELECT USER_ID, USER_NAME, CUR_HP, MAX_HP, CUR_STAMINA, MAX_STAMINA, EXPERIENCE, GOLD,
                LAST_CALC_AT, DOWN_UNTIL, LAST_REROLL_AT, DAILY_REROLL_CNT
         FROM O_USERS
         WHERE USER_ID = #{userId}
     </select>
 
     <select id="findByName" parameterType="String" resultMap="userResultMap">
-        SELECT USER_ID, CUR_HP, MAX_HP, CUR_STAMINA, MAX_STAMINA, EXPERIENCE, GOLD,
+        SELECT USER_ID, USER_NAME, CUR_HP, MAX_HP, CUR_STAMINA, MAX_STAMINA, EXPERIENCE, GOLD,
                LAST_CALC_AT, DOWN_UNTIL, LAST_REROLL_AT, DAILY_REROLL_CNT
         FROM O_USERS
         WHERE USER_NAME = #{name}
     </select>
 
     <select id="findByIdForUpdate" parameterType="String" resultMap="userResultMap">
-        SELECT USER_ID, CUR_HP, MAX_HP, CUR_STAMINA, MAX_STAMINA, EXPERIENCE, GOLD,
+        SELECT USER_ID, USER_NAME, CUR_HP, MAX_HP, CUR_STAMINA, MAX_STAMINA, EXPERIENCE, GOLD,
                LAST_CALC_AT, DOWN_UNTIL, LAST_REROLL_AT, DAILY_REROLL_CNT
         FROM O_USERS
         WHERE USER_ID = #{userId}
         FOR UPDATE NOWAIT
     </select>
+
+    <insert id="insert">
+        INSERT INTO O_USERS (USER_ID, USER_NAME, LAST_CALC_AT, BATTLE_STATE, DAILY_REROLL_CNT)
+        SELECT #{userId}, #{userName}, SYSTIMESTAMP, 'NONE', 0
+        FROM DUAL
+        WHERE NOT EXISTS (SELECT 1 FROM O_USERS WHERE USER_ID = #{userId})
+    </insert>
 
     <update id="update" parameterType="com.iyo.ohhaeng.domain.user.User">
         UPDATE O_USERS

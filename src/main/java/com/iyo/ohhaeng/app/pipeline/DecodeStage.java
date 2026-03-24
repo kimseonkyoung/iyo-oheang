@@ -20,6 +20,7 @@ public class DecodeStage implements Stage {
 
             ctx.utterance(text(root, "/userRequest/utterance"));
             ctx.userId(text(root, "/userRequest/user/id"));
+            ctx.userName(text(root, "/userRequest/user/properties/nickname"));
 
             // callbackUrl: 루트 레벨 우선, 없으면 userRequest 하위 확인
             String callbackUrl = text(root, "/callbackUrl");

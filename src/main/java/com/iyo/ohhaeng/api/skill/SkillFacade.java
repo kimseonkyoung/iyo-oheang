@@ -9,23 +9,32 @@ import com.iyo.ohhaeng.app.pipeline.ParseStage;
 import com.iyo.ohhaeng.app.pipeline.Pipeline;
 import com.iyo.ohhaeng.app.pipeline.RateLimitStage;
 import com.iyo.ohhaeng.app.pipeline.SkillContext;
+import com.iyo.ohhaeng.app.command.CommandType;
 import com.iyo.ohhaeng.app.usecase.DuelUseCase;
 import com.iyo.ohhaeng.app.usecase.EnhanceUseCase;
 import com.iyo.ohhaeng.app.usecase.GetMyInfoUseCase;
 import com.iyo.ohhaeng.app.usecase.GetRankingUseCase;
 import com.iyo.ohhaeng.app.usecase.HuntUseCase;
+import com.iyo.ohhaeng.app.usecase.RegisterUseCase;
 import com.iyo.ohhaeng.app.usecase.RerollUseCase;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.Set;
 
 @Slf4j
 @Component
 public class SkillFacade {
 
+    private static final Set<CommandType> USER_COMMANDS = Set.of(
+            CommandType.MY_INFO, CommandType.HUNT, CommandType.ENHANCE,
+            CommandType.REROLL, CommandType.DUEL
+    );
+
     private final Pipeline pipeline;
     private final DbGateStage dbGateStage;
+    private final RegisterUseCase registerUseCase;
     private final GetMyInfoUseCase getMyInfoUseCase;
     private final GetRankingUseCase getRankingUseCase;
     private final HuntUseCase huntUseCase;
@@ -38,6 +47,7 @@ public class SkillFacade {
                        IdempotencyStage idempotencyStage,
                        RateLimitStage rateLimitStage,
                        DbGateStage dbGateStage,
+                       RegisterUseCase registerUseCase,
                        GetMyInfoUseCase getMyInfoUseCase,
                        GetRankingUseCase getRankingUseCase,
                        HuntUseCase huntUseCase,
@@ -48,6 +58,7 @@ public class SkillFacade {
                 decodeStage, normalizeStage, parseStage, idempotencyStage, rateLimitStage, dbGateStage
         ));
         this.dbGateStage = dbGateStage;
+        this.registerUseCase = registerUseCase;
         this.getMyInfoUseCase = getMyInfoUseCase;
         this.getRankingUseCase = getRankingUseCase;
         this.huntUseCase = huntUseCase;
@@ -74,6 +85,10 @@ public class SkillFacade {
 
             log.info("[Skill] requestId={}, userId={}, command={}, hasCallback={}",
                     requestId, ctx.userId(), ctx.command().getType(), ctx.callbackUrl() != null);
+
+            if (USER_COMMANDS.contains(ctx.command().getType())) {
+                registerUseCase.ensureRegistered(ctx.userId(), ctx.userName());
+            }
 
             return switch (ctx.command().getType()) {
                 case MY_INFO -> SkillResponse.ofSimpleText(getMyInfoUseCase.execute(ctx.userId()));
