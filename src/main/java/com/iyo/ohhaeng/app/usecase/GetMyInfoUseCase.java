@@ -1,6 +1,7 @@
 package com.iyo.ohhaeng.app.usecase;
 
 import com.iyo.ohhaeng.domain.user.User;
+import com.iyo.ohhaeng.domain.weapon.ElementType;
 import com.iyo.ohhaeng.domain.weapon.Weapon;
 import com.iyo.ohhaeng.infra.db.UserRepository;
 import com.iyo.ohhaeng.infra.db.WeaponRepository;
@@ -24,12 +25,14 @@ public class GetMyInfoUseCase {
         user.recalcResources(clockHolder.now());
         Weapon weapon = weaponRepository.findByUserId(userId);
 
+        ElementType element = weapon.getElementType();
         return "[내 정보]\n"
-                + "이름: " + user.getUserName() + "\n"
-                + "무기: " + weapon.displayName() + "\n"
-                + "속성: " + weapon.getElementType().display() + "\n"
-                + "HP: " + user.getHp() + "/" + user.getMaxHp()
-                + "  스태미나: " + user.getStamina() + "/" + user.getMaxStamina() + "\n"
-                + "골드: " + user.getGold() + "  경험치: " + user.getExperience();
+                + "👤 이름: " + user.getUserName() + "\n"
+                + "⚔️ 무기: " + weapon.displayName() + "\n"
+                + element.emoji() + " 속성: " + element.display() + "\n"
+                + "❤️ HP: " + user.getHp() + "/" + user.getMaxHp() + "\n"
+                + "⚡ 스태미나: " + user.getStamina() + "/" + user.getMaxStamina() + "\n"
+                + "💰 골드: " + user.getGold() + "\n"
+                + "✨ 경험치: " + user.getExperience();
     }
 }

@@ -71,11 +71,11 @@ public class DuelUseCase {
         userRepository.update(target);
 
         String resultText = switch (result.getOutcome()) {
-            case "WIN_A" -> "승리! (" + result.getASum() + " vs " + result.getBSum() + ")";
-            case "WIN_B" -> "패배... (" + result.getASum() + " vs " + result.getBSum() + ")";
-            default      -> "무승부! (" + result.getASum() + " vs " + result.getBSum() + ")";
+            case "WIN_A" -> "🏆 승리! (" + result.getASum() + " vs " + result.getBSum() + ")";
+            case "WIN_B" -> "💀 패배... (" + result.getASum() + " vs " + result.getBSum() + ")";
+            default      -> "🤝 무승부! (" + result.getASum() + " vs " + result.getBSum() + ")";
         };
-        return "[대결 결과]\nvs @" + targetName + "\n" + resultText;
+        return "[⚔️ 대결 결과]\nvs @" + targetName + "\n" + resultText;
     }
 
     private String buildRoundLog(String aUserId, String bUserId,

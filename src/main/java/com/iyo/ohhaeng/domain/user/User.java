@@ -42,14 +42,14 @@ public class User {
     public void setUserName(String userName) { this.userName = userName; }
 
     public void recalcResources(Instant now) {
-        long ticks = Duration.between(lastCalcAt, now).toSeconds() / 10;
+        long ticks = Duration.between(lastCalcAt, now).toSeconds() / 5;
         hp = Math.min(maxHp, hp + (int) ticks);
         stamina = Math.min(maxStamina, stamina + (int) ticks);
-        lastCalcAt = lastCalcAt.plusSeconds(ticks * 10);
+        lastCalcAt = lastCalcAt.plusSeconds(ticks * 5);
     }
 
     public void knockDown(Instant now) {
-        this.downUntil = now.plusSeconds(60 * 10);  // 10분 = 600초
+        this.downUntil = now.plusSeconds(60 * 3);  // 3분 = 180초
     }
 
     public void consumeStamina() {
