@@ -46,8 +46,8 @@ public class DuelUseCase {
         User attacker = attackerFirst ? first : second;
         User target   = attackerFirst ? second : first;
 
-        if (attacker.isDown(now)) return "기절 중입니다. 잠시 후 다시 시도해 주세요.";
-        if (target.isDown(now))   return "상대가 기절 중입니다.";
+        if (attacker.isDown(now)) return "기절 중입니다. (" + attacker.downRemainingText(now) + " 후 회복)";
+        if (target.isDown(now))   return "상대가 기절 중입니다. (" + target.downRemainingText(now) + " 후 회복)";
 
         attacker.recalcResources(now);
         target.recalcResources(now);

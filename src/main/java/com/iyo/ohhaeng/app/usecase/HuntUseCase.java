@@ -24,7 +24,7 @@ public class HuntUseCase {
         User user = userRepository.findByIdForUpdate(userId);
 
         if (user.isDown(now)) {
-            return "기절 중입니다. 잠시 후 다시 시도해 주세요.";
+            return "기절 중입니다. (" + user.downRemainingText(now) + " 후 회복)";
         }
 
         user.recalcResources(now);
